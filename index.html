@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>Daily Planer</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --cream:#fdf6ee;--paper:#f5ebe0;--sand:#e8d5c0;--warm:#c9a882;
+  --amber:#b5803a;--rust:#9c5e2b;--brown:#6b3d14;--espresso:#2c1a0e;
+  --orange:#d4642a;--orange-soft:#e8875c;--orange-pale:#faeae0;
+  --text:#2c1a0e;--text-mid:#8b6248;--text-light:#b8956f;
+  --shadow:rgba(107,61,20,.12);--radius:18px;
+}
+html,body{min-height:100%;background:var(--cream);color:var(--text);font-family:'DM Sans',sans-serif}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--sand);border-radius:4px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.93)}to{opacity:1;transform:scale(1)}}
+@keyframes glow{0%,100%{box-shadow:0 8px 32px rgba(181,128,58,.35)}50%{box-shadow:0 8px 48px rgba(181,128,58,.6),0 0 0 12px rgba(181,128,58,.08)}}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+@keyframes slideR{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:translateX(0)}}
+
+#app{display:flex;flex-direction:column;min-height:100vh;max-width:480px;margin:0 auto}
+
+/* HEADER */
+#header{padding:22px 22px 14px;background:var(--brown);position:sticky;top:0;z-index:50}
+.h-top{display:flex;justify-content:space-between;align-items:flex-start}
+.h-title{font-family:'Cormorant Garamond',serif;font-size:27px;font-weight:600;color:var(--cream);letter-spacing:.3px;line-height:1.1}
+.h-sub{font-size:10px;color:var(--warm);margin-top:3px;font-weight:400;letter-spacing:.7px;text-transform:uppercase}
+.streak-pill{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:40px;padding:7px 14px}
+.sp-num{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--cream);line-height:1}
+.sp-label{font-size:9px;color:var(--warm);font-weight:500;letter-spacing:.6px}
+.h-quote{margin-top:11px;padding:9px 13px;background:rgba(255,255,255,.08);border-radius:10px;font-size:12px;color:var(--warm);line-height:1.5}
+
+/* NAV */
+#nav{display:flex;background:var(--espresso);border-bottom:1px solid rgba(255,255,255,.05);overflow-x:auto}
+#nav::-webkit-scrollbar{height:0}
+.nav-btn{flex:0 0 auto;padding:11px 15px;background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;color:rgba(232,213,192,.4);font-size:10px;font-weight:500;letter-spacing:.7px;text-transform:uppercase;font-family:'DM Sans',sans-serif;display:flex;flex-direction:column;align-items:center;gap:4px;transition:all .2s}
+.nav-btn.active{color:var(--orange-soft);border-bottom-color:var(--orange-soft)}
+
+/* CONTENT */
+#content{flex:1;padding:18px 15px 36px;animation:fadeUp .3s ease both}
+
+/* CARD */
+.card{background:#fff;border-radius:var(--radius);padding:20px;margin-bottom:13px;border:1px solid rgba(201,168,130,.18);box-shadow:0 2px 18px var(--shadow)}
+.card-title{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;color:var(--brown);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+
+/* COMPANION */
+.orb-wrap{text-align:center;padding:4px 0 14px}
+.orb{width:86px;height:86px;border-radius:50%;margin:0 auto 14px;background:linear-gradient(145deg,var(--amber),var(--rust));display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(181,128,58,.35);transition:all .5s cubic-bezier(.34,1.56,.64,1)}
+.orb.active{animation:glow 2s ease infinite;transform:scale(1.07)}
+.orb.loading svg{animation:spin 1.2s linear infinite}
+.orb-msg{max-width:260px;margin:0 auto;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:17px;color:var(--rust);line-height:1.6;display:none;animation:scaleIn .4s ease}
+.orb-msg.show{display:block}
+.orb-btn{display:none;margin:12px auto 0;padding:7px 20px;border-radius:40px;background:transparent;border:1px solid var(--warm);color:var(--rust);font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:.3px;transition:all .2s}
+.orb-btn:hover{background:var(--paper)}
+.orb-btn.show{display:inline-block}
+
+/* PROGRESS */
+.prog-wrap{height:4px;background:var(--paper);border-radius:10px;margin-bottom:18px;overflow:hidden}
+.prog-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--amber),var(--orange));transition:width .6s cubic-bezier(.4,0,.2,1)}
+
+/* ACT ITEMS */
+.act-item{display:flex;align-items:center;gap:11px;padding:12px 13px;margin-bottom:7px;background:var(--cream);border:1.5px solid transparent;border-radius:12px;cursor:pointer;transition:all .2s;user-select:none}
+.act-item:active{transform:scale(.98)}
+.act-item.done{background:var(--orange-pale);border-color:rgba(212,100,42,.22)}
+.act-ico{width:36px;height:36px;border-radius:10px;flex-shrink:0;background:var(--paper);display:flex;align-items:center;justify-content:center;transition:background .3s}
+.act-item.done .act-ico{background:rgba(212,100,42,.12)}
+.act-name{font-size:14px;font-weight:500;color:var(--espresso);flex:1;transition:all .25s}
+.act-item.done .act-name{color:var(--text-light);text-decoration:line-through;text-decoration-color:var(--warm)}
+.act-chk{width:24px;height:24px;border-radius:50%;flex-shrink:0;border:1.5px solid var(--sand);display:flex;align-items:center;justify-content:center;transition:all .3s cubic-bezier(.34,1.56,.64,1)}
+.act-item.done .act-chk{background:var(--orange);border-color:var(--orange)}
+.empty{text-align:center;padding:26px 12px;color:var(--text-light);font-size:13px;line-height:1.8}
+
+/* DAY CHIPS */
+.day-nav{display:flex;gap:5px;margin-bottom:15px;overflow-x:auto;padding-bottom:3px}
+.day-nav::-webkit-scrollbar{height:0}
+.day-chip{flex:0 0 auto;min-width:50px;padding:7px 10px;border-radius:28px;cursor:pointer;background:var(--paper);border:1.5px solid transparent;font-size:10px;font-weight:500;color:var(--text-light);letter-spacing:.4px;text-transform:uppercase;text-align:center;transition:all .18s}
+.day-chip .dn{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;display:block;color:var(--brown);line-height:1.1}
+.day-chip.active{background:var(--brown);border-color:var(--brown);color:rgba(253,246,238,.7)}
+.day-chip.active .dn{color:var(--cream)}
+.day-chip.istoday .dn{color:var(--orange)}
+.day-chip.istoday.active .dn{color:var(--cream)}
+.day-chip:hover:not(.active){border-color:var(--warm)}
+
+/* INPUTS */
+textarea{width:100%;border-radius:12px;padding:13px 14px;border:1.5px solid var(--sand);background:var(--cream);font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.75;color:var(--espresso);resize:none;transition:border-color .2s}
+textarea:focus{outline:none;border-color:var(--amber)}
+textarea::placeholder{color:var(--text-light)}
+input[type=text]{width:100%;padding:11px 14px;border-radius:12px;border:1.5px solid var(--sand);background:var(--cream);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--espresso)}
+input[type=text]:focus{outline:none;border-color:var(--amber)}
+input[type=text]::placeholder{color:var(--text-light)}
+input[type=date],input[type=month]{width:100%;padding:11px 14px;border-radius:12px;border:1.5px solid var(--sand);background:var(--cream);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--espresso);font-weight:500;cursor:pointer}
+input[type=date]:focus,input[type=month]:focus{outline:none;border-color:var(--amber)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 22px;border-radius:40px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;letter-spacing:.3px;transition:all .2s}
+.btn-p{background:var(--brown);color:var(--cream)}
+.btn-p:hover{background:var(--espresso)}
+.btn-g{background:transparent;color:var(--rust);border:1px solid var(--sand)}
+.btn-g:hover{border-color:var(--amber);background:var(--paper)}
+.btn-d{background:transparent;color:#b94040;border:1px solid #e8c0c0}
+.btn-d:hover{background:#fff5f5}
+.btn-sm{padding:7px 16px;font-size:12px}
+.btn-block{width:100%;justify-content:center}
+
+/* ICON GRID */
+.icon-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin:10px 0}
+.icon-opt{aspect-ratio:1;border-radius:10px;cursor:pointer;background:var(--paper);border:1.5px solid transparent;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.icon-opt:hover{border-color:var(--warm);background:var(--sand)}
+.icon-opt.sel{border-color:var(--amber);background:var(--orange-pale)}
+
+/* CALENDAR */
+.cal-heads{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:4px}
+.cal-hd{text-align:center;font-size:9px;font-weight:600;color:var(--text-light);letter-spacing:.7px;text-transform:uppercase;padding:3px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-cell{aspect-ratio:1;border-radius:8px;background:var(--paper);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:var(--text-mid);cursor:pointer;transition:all .15s;border:1.5px solid transparent;position:relative}
+.cal-cell:hover{border-color:var(--warm)}
+.cal-cell.ctoday{border-color:var(--amber)!important}
+.cal-dot{width:4px;height:4px;border-radius:50%;background:var(--amber);position:absolute;bottom:3px}
+.cal-cell.pfull{background:var(--brown);color:var(--cream)}
+.cal-cell.pfull .cal-dot{background:rgba(255,255,255,.7)}
+.cal-cell.phigh{background:var(--amber);color:#fff}
+.cal-cell.pmid{background:var(--warm);color:#fff}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:16px}
+.stat-box{background:var(--paper);border-radius:13px;padding:13px 8px;text-align:center}
+.stat-val{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;color:var(--brown);line-height:1}
+.stat-label{font-size:10px;color:var(--text-light);margin-top:3px;font-weight:500;letter-spacing:.5px;text-transform:uppercase}
+
+/* MANAGE */
+.manage-row{display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--paper);border-radius:12px;margin-bottom:7px;animation:slideR .2s ease}
+.manage-ico{width:34px;height:34px;border-radius:9px;background:var(--sand);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.manage-name{font-size:14px;font-weight:500;color:var(--espresso)}
+.manage-days{font-size:10px;color:var(--text-light);letter-spacing:.3px;margin-top:1px}
+
+/* LEVEL */
+.level-row{display:flex;align-items:center;gap:11px;padding:10px 13px;border-radius:12px;margin-bottom:6px;background:var(--paper);border:1.5px solid transparent;transition:all .2s}
+.level-row.cur{background:var(--orange-pale);border-color:rgba(212,100,42,.25)}
+.level-tag{font-size:9px;font-weight:600;color:var(--orange);letter-spacing:.5px;background:rgba(212,100,42,.1);padding:3px 8px;border-radius:6px}
+
+/* ADD PANEL */
+.add-panel{background:var(--cream);border:1.5px solid var(--sand);border-radius:14px;padding:16px;margin-bottom:13px;animation:scaleIn .22s ease}
+
+/* ARCHIVE */
+.arch-row{display:flex;align-items:center;justify-content:space-between;padding:12px 13px;background:var(--paper);border-radius:12px;margin-bottom:7px;cursor:pointer;border:1.5px solid transparent;transition:all .18s}
+.arch-row:hover{border-color:var(--warm);background:var(--sand)}
+.arch-name{font-size:14px;font-weight:500;color:var(--brown)}
+.arch-meta{font-size:11px;color:var(--text-light);margin-top:2px}
+
+/* TAG */
+.tag{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500;background:var(--paper);color:var(--text-light);margin:2px}
+.tag.done{background:var(--orange-pale);color:var(--rust)}
+
+/* DIVIDER */
+.divider{height:1px;background:var(--paper);margin:14px 0}
+
+/* TOAST */
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);background:var(--espresso);color:var(--cream);padding:10px 22px;border-radius:40px;font-size:13px;font-weight:500;z-index:999;animation:fadeUp .3s ease;white-space:nowrap;box-shadow:0 6px 24px rgba(44,26,14,.3)}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="header">
+    <div class="h-top">
+      <div>
+        <div class="h-title">Daily Planer</div>
+        <div class="h-sub" id="h-date">—</div>
+      </div>
+      <div class="streak-pill">
+        <div><div class="sp-num" id="sp-num">0</div><div class="sp-label">HARI</div></div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2C9 7 5 9.5 5 14a7 7 0 0014 0c0-4.5-4-7-7-12z" fill="#e8875c"/><path d="M12 10c-1.5 2.5-3 3.5-3 5.5a3 3 0 006 0c0-2-1.5-3-3-5.5z" fill="rgba(255,255,255,.6)"/></svg>
+      </div>
+    </div>
+    <div class="h-quote" id="h-quote">—</div>
+  </div>
+  <div id="nav">
+    <button class="nav-btn active" data-tab="today" onclick="switchTab('today')">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      Hari Ini
+    </button>
+    <button class="nav-btn" data-tab="journal" onclick="switchTab('journal')">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+      Jurnal
+    </button>
+    <button class="nav-btn" data-tab="monthly" onclick="switchTab('monthly')">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      Bulanan
+    </button>
+    <button class="nav-btn" data-tab="folder" onclick="switchTab('folder')">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+      Folder
+    </button>
+    <button class="nav-btn" data-tab="settings" onclick="switchTab('settings')">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      Kelola
+    </button>
+  </div>
+  <div id="content"></div>
+</div>
+<script>
+// ─── ICON LIBRARY (SVG only, no emoji) ──────────────────────────────────────
+const IC={
+  book:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>`,
+  run:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="13" cy="4" r="1.5"/><path d="M7 21l3-6 2.5 2 3-5"/><path d="M5 11l4-2 3 3 3-1"/></svg>`,
+  meditation:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"/><path d="M5 13c2-4 10-4 14 0"/><path d="M8 13v5l4 2 4-2v-5"/></svg>`,
+  gym:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6.5 6.5h11M6.5 17.5h11"/><rect x="2" y="5" width="3" height="14" rx="1"/><rect x="19" y="5" width="3" height="14" rx="1"/><path d="M5 12h14"/></svg>`,
+  write:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>`,
+  art:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10a2 2 0 000-4c-.53 0-1.04-.21-1.41-.59a2 2 0 010-2.83c.37-.37.88-.58 1.41-.58h2A6 6 0 0020 8.89C19.05 4.9 15.85 2 12 2z"/></svg>`,
+  music:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`,
+  leaf:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M17 8C8 10 5.9 16.17 3.82 19.04c-.48.65.18 1.43.9 1.07A10 10 0 0117 8z"/><path d="M12 18a6 6 0 006-6"/></svg>`,
+  code:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`,
+  food:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>`,
+  water:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2C6 10 4 14 4 17a8 8 0 0016 0c0-3-2-7-8-15z"/></svg>`,
+  pray:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>`,
+  brain:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9.5 2A2.5 2.5 0 007 4.5v.5a3 3 0 00-3 3 3 3 0 001.5 2.6V12a4 4 0 004 4h5a4 4 0 004-4v-1.4A3 3 0 0020 8a3 3 0 00-3-3v-.5A2.5 2.5 0 0014.5 2h-5z"/></svg>`,
+  heart:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>`,
+  sun:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`,
+  moon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>`,
+  walk:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="4" r="1.5"/><path d="M9 20l1.5-6L8 12l1-4h6l1 4-2.5 2L15 20"/></svg>`,
+  camera:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>`,
+  star:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+  coffee:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>`,
+  clock:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+  target:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
+  chat:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>`,
+  smile:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>`,
+};
+const ICON_KEYS=Object.keys(IC);
+const ICON_LABELS={book:'Baca',run:'Lari',meditation:'Meditasi',gym:'Gym',write:'Menulis',art:'Kreasi',music:'Musik',leaf:'Alam',code:'Coding',food:'Makan Sehat',water:'Minum Air',pray:'Ibadah',brain:'Belajar',heart:'Self Care',sun:'Pagi Hari',moon:'Malam Hari',walk:'Jalan Kaki',camera:'Foto',star:'Prioritas',coffee:'Rutinitas',clock:'Waktu',target:'Target',chat:'Komunikasi',smile:'Mood'};
+
+function ico(k,sz=20){return(IC[k]||IC.target).replace('<svg',`<svg width="${sz}" height="${sz}"`)}
+function icoW(k,sz=20){return ico(k,sz).replace('stroke="currentColor"','stroke="white"')}
+
+// ─── CONSTANTS ────────────────────────────────────────────────────────────────
+const DAY_S=['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+const DAY_FULL=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+const MONTHS=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+const LEVELS=[
+  {min:0,max:2,name:'Pemula',desc:'Langkah pertama selalu bermakna.',icon:'leaf'},
+  {min:3,max:6,name:'Tumbuh',desc:'Kebiasaan perlahan terbentuk.',icon:'leaf'},
+  {min:7,max:13,name:'Bersemangat',desc:'Satu minggu penuh komitmen.',icon:'sun'},
+  {min:14,max:20,name:'Berdedikasi',desc:'Dua minggu tanpa henti.',icon:'star'},
+  {min:21,max:29,name:'Pejuang',desc:'21 hari — sudah menjadi dirimu.',icon:'target'},
+  {min:30,max:59,name:'Master',desc:'Sebulan penuh. Luar biasa.',icon:'heart'},
+  {min:60,max:89,name:'Legenda',desc:'Dua bulan konsisten.',icon:'brain'},
+  {min:90,max:99999,name:'Abadi',desc:'90+ hari. Kamu adalah buktinya.',icon:'moon'},
+];
+const FB={
+  'Pemula':['Setiap langkah kecil membawa perubahan besar.','Mulai adalah separuh dari selesai.'],
+  'Tumbuh':['Konsistensi kecil membangun hasil besar.','Kamu sedang menanam benih yang indah.'],
+  'Bersemangat':['Satu minggu sudah terlewati dengan indah.','Api semangatmu nyata terasa hari ini.'],
+  'Berdedikasi':['Dua minggu membuktikan karakter sejatimu.','Tidak semua orang bisa sampai di sini.'],
+  'Pejuang':['21 hari bukan kebetulan — ini pilihan.','Kamu sudah melampaui batas kebanyakan orang.'],
+  'Master':['Sebulan penuh komitmen adalah pencapaian luar biasa.'],
+  'Legenda':['Dua bulan tanpa jeda — ini bukan lagi usaha, ini siapa kamu.'],
+  'Abadi':['90 hari. Kamu adalah inspirasi yang hidup.'],
+};
+
+// ─── STORAGE ──────────────────────────────────────────────────────────────────
+const KEY='kr_v5';
+function load(){try{const r=localStorage.getItem(KEY);return r?JSON.parse(r):null}catch{return null}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(D))}catch{}}
+function todayStr(){return new Date().toISOString().split('T')[0]}
+function monthStr(d=new Date()){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
+
+let D=load()||{activities:[],dailyLogs:{},journals:{},monthlyNotes:{},folders:{},streak:0,lastDate:todayStr(),aiMessages:{}};
+D.activities=D.activities.map(a=>({...a,days:a.days||[0,1,2,3,4,5,6],iconKey:a.iconKey||'target'}));
+
+// streak check
+(function(){
+  const t=todayStr();
+  if(D.lastDate!==t){
+    const dow=new Date(D.lastDate+'T00:00:00').getDay();
+    const acts=D.activities.filter(a=>a.days.includes(dow));
+    const logs=D.dailyLogs[D.lastDate]||{};
+    D.streak=acts.length>0&&acts.every(a=>logs[a.id])?D.streak+1:0;
+    D.lastDate=t;save();
+  }
+})();
+
+function getLv(s){return LEVELS.find(l=>s>=l.min&&s<=l.max)||LEVELS[0]}
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let tab='today',selDate=todayStr(),selMonth=monthStr();
+let aiLoading=false,addOpen=false,newIcon='target',newDays=[0,1,2,3,4,5,6],showPicker=false;
+
+// ─── HEADER ───────────────────────────────────────────────────────────────────
+function renderHeader(){
+  const lv=getLv(D.streak);
+  document.getElementById('h-date').textContent=
+    new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).toUpperCase();
+  document.getElementById('sp-num').textContent=D.streak;
+  document.getElementById('h-quote').textContent=lv.name+' — '+lv.desc;
+}
+
+function switchTab(t){
+  tab=t;
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
+  render();
+}
+
+// ─── TODAY ────────────────────────────────────────────────────────────────────
+function renderToday(){
+  const today=todayStr(),dow=new Date().getDay(),lv=getLv(D.streak);
+  const logs=D.dailyLogs[today]||{};
+  const acts=D.activities.filter(a=>a.days.includes(dow));
+  const done=acts.filter(a=>logs[a.id]).length,total=acts.length;
+  const allDone=total>0&&done===total,pct=total>0?done/total:0;
+  const savedMsg=D.aiMessages[today]||'';
+
+  const actsHTML=!acts.length
+    ?`<div class="empty">${ico('leaf',28)}<br><br>Tidak ada kegiatan hari ini.<br>Atur jadwal di tab <strong>Kelola</strong>.</div>`
+    :acts.map(a=>`<div class="act-item ${logs[a.id]?'done':''}" onclick="toggleAct('${a.id}')">
+      <div class="act-ico">${ico(a.iconKey,18)}</div>
+      <span class="act-name">${a.name}</span>
+      <div class="act-chk">${logs[a.id]?`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>`:''}</div>
+    </div>`).join('');
+
+  return `
+  <div class="card">
+    <div class="orb-wrap">
+      <div class="orb ${allDone?'active':''} ${aiLoading?'loading':''}">
+        ${aiLoading
+          ?`<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>`
+          :icoW(lv.icon,30)}
+      </div>
+      <div class="orb-msg ${savedMsg?'show':''}">${savedMsg}</div>
+      <button class="orb-btn ${allDone&&!aiLoading?'show':''}" onclick="triggerAI()">Minta motivasi lagi</button>
+    </div>
+  </div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px">
+      <div class="card-title" style="margin:0">${ico('target',17)} Hari Ini</div>
+      <span style="font-size:12px;color:var(--text-light);font-weight:500">${done} / ${total}</span>
+    </div>
+    <div class="prog-wrap"><div class="prog-fill" style="width:${pct*100}%"></div></div>
+    ${actsHTML}
+  </div>
+  <div class="card">
+    <div class="card-title">${ico('write',17)} Jurnal Hari Ini</div>
+    <textarea id="j-today" rows="4" placeholder="Bagaimana harimu? Apa yang kamu syukuri?">${D.journals[today]||''}</textarea>
+    <div style="margin-top:10px"><button class="btn btn-p btn-sm" onclick="saveJToday()">Simpan</button></div>
+  </div>`;
+}
+
+function toggleAct(id){
+  const today=todayStr(),dow=new Date().getDay();
+  const logs={...(D.dailyLogs[today]||{})};
+  logs[id]=!logs[id];D.dailyLogs[today]=logs;save();
+  const acts=D.activities.filter(a=>a.days.includes(dow));
+  if(acts.length>0&&acts.every(a=>logs[a.id])&&!D.aiMessages[today])triggerAI();
+  else render();
+}
+function saveJToday(){D.journals[todayStr()]=document.getElementById('j-today')?.value||'';save();toast('Jurnal tersimpan')}
+
+async function triggerAI(){
+  if(aiLoading)return;aiLoading=true;render();
+  const lv=getLv(D.streak),today=todayStr(),dow=new Date().getDay();
+  const acts=D.activities.filter(a=>a.days.includes(dow)).map(a=>a.name).join(', ');
+  const prompt=`Kamu adalah pendamping motivasi bernama Restu, elegan dan hangat. Pengguna menyelesaikan: ${acts||'semua kegiatannya'}. Streak ${D.streak} hari, level ${lv.name}. Tulis 1-2 kalimat motivasi puitis dalam Bahasa Indonesia. Tanpa markdown.`;
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
+    const j=await r.json();
+    const msg=j?.content?.[0]?.text;
+    if(msg){D.aiMessages[today]=msg;save()}else throw 0;
+  }catch{
+    const fb=FB[lv.name]||FB['Pemula'];
+    D.aiMessages[today]=fb[Math.floor(Math.random()*fb.length)];save();
+  }
+  aiLoading=false;render();
+}
+
+// ─── JOURNAL ──────────────────────────────────────────────────────────────────
+function renderJournal(){
+  const dow=new Date(selDate+'T00:00:00').getDay();
+  const acts=D.activities.filter(a=>a.days.includes(dow));
+  const logs=D.dailyLogs[selDate]||{};
+  const aiMsg=D.aiMessages[selDate]||'';
+  const dateLabel=new Date(selDate+'T00:00:00').toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+  const tags=acts.map(a=>`<span class="tag ${logs[a.id]?'done':''}">${ico(a.iconKey,10)} ${a.name}</span>`).join('');
+
+  const days=[];for(let i=13;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push(d.toISOString().split('T')[0])}
+  const chips=days.map(ds=>{
+    const wd=new Date(ds+'T00:00:00'),isToday=ds===todayStr(),active=ds===selDate;
+    return `<div class="day-chip ${active?'active':''} ${isToday?'istoday':''}" onclick="selDate='${ds}';render()">
+      <span class="dn">${wd.getDate()}</span>${DAY_S[wd.getDay()]}
+    </div>`;
+  }).join('');
+
+  return `
+  <div class="card">
+    <div class="card-title">${ico('book',17)} Pilih Tanggal</div>
+    <div class="day-nav">${chips}</div>
+    <input type="date" id="date-custom" value="${selDate}" max="${todayStr()}" onchange="selDate=this.value;render()" style="margin-top:6px"/>
+  </div>
+  <div class="card">
+    <div class="card-title">${ico('write',17)} ${dateLabel}</div>
+    ${tags?`<div style="margin-bottom:12px;line-height:2.3">${tags}</div>`:''}
+    <textarea id="j-text" rows="8" placeholder="Tuliskan jurnal harianmu…">${D.journals[selDate]||''}</textarea>
+    <div style="margin-top:10px"><button class="btn btn-p btn-sm" onclick="saveJDate()">Simpan</button></div>
+    ${aiMsg?`<div class="divider"></div><div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:17px;color:var(--rust);line-height:1.6;text-align:center;padding:2px 4px">"${aiMsg}"</div>`:''}
+  </div>`;
+}
+function saveJDate(){D.journals[selDate]=document.getElementById('j-text')?.value||'';save();toast('Jurnal tersimpan')}
+
+// ─── MONTHLY ──────────────────────────────────────────────────────────────────
+function renderMonthly(){
+  const [y,m]=selMonth.split('-').map(Number);
+  const firstDay=new Date(y,m-1,1).getDay(),dim=new Date(y,m,0).getDate(),today=todayStr();
+  let cells='';
+  for(let i=0;i<firstDay;i++)cells+=`<div></div>`;
+  for(let d=1;d<=dim;d++){
+    const ds=`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const pct=getDayPct(ds),isToday=ds===today,hasJ=!!(D.journals[ds]?.trim());
+    let cls='cal-cell';
+    if(pct===1&&D.activities.length)cls+=' pfull';
+    else if(pct>=.6&&D.activities.length)cls+=' phigh';
+    else if(pct>=.3&&D.activities.length)cls+=' pmid';
+    if(isToday)cls+=' ctoday';
+    cells+=`<div class="${cls}" onclick="selDate='${ds}';switchTab('journal')">${d}${hasJ?`<div class="cal-dot"></div>`:''}</div>`;
+  }
+  return `
+  <div class="card">
+    <div class="card-title">${ico('clock',17)} Pilih Bulan</div>
+    <input type="month" value="${selMonth}" max="${monthStr()}" onchange="selMonth=this.value;render()"/>
+  </div>
+  <div class="card">
+    <div class="card-title">${ico('sun',17)} ${MONTHS[m-1]} ${y}</div>
+    <div class="cal-heads">${DAY_S.map(d=>`<div class="cal-hd">${d}</div>`).join('')}</div>
+    <div class="cal-grid">${cells}</div>
+    <div style="margin-top:14px;display:flex;gap:14px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-light)"><div style="width:11px;height:11px;border-radius:3px;background:var(--brown)"></div>Semua selesai</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-light)"><div style="width:11px;height:11px;border-radius:3px;background:var(--amber)"></div>Sebagian besar</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-light)"><div style="width:4px;height:4px;border-radius:50%;background:var(--amber)"></div>Ada jurnal</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">${ico('write',17)} Catatan Bulanan</div>
+    <textarea id="mn-text" rows="5" placeholder="Refleksi, pencapaian, dan harapan bulan ini…">${D.monthlyNotes[selMonth]||''}</textarea>
+    <div style="margin-top:10px"><button class="btn btn-p btn-sm" onclick="saveMN()">Simpan</button></div>
+  </div>`;
+}
+function getDayPct(ds){
+  const dow=new Date(ds+'T00:00:00').getDay();
+  const acts=D.activities.filter(a=>a.days.includes(dow));
+  if(!acts.length)return 0;
+  const logs=D.dailyLogs[ds]||{};
+  return acts.filter(a=>logs[a.id]).length/acts.length;
+}
+function saveMN(){D.monthlyNotes[selMonth]=document.getElementById('mn-text')?.value||'';save();toast('Catatan bulanan tersimpan')}
+
+// ─── FOLDER ───────────────────────────────────────────────────────────────────
+function renderFolder(){
+  const cm=monthStr(),[y,m]=cm.split('-').map(Number),dim=new Date(y,m,0).getDate();
+  let cD=0,jD=0;
+  for(let d=1;d<=dim;d++){const ds=`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;if(getDayPct(ds)===1&&D.activities.length)cD++;if(D.journals[ds]?.trim())jD++;}
+  const allM=[...new Set(Object.keys(D.dailyLogs).map(d=>d.slice(0,7)))].filter(mk=>mk!==cm).sort().reverse();
+  const archHTML=!allM.length?`<div class="empty">Belum ada arsip.</div>`:allM.map(mk=>{
+    const [ay,am]=mk.split('-').map(Number),mDim=new Date(ay,am,0).getDate();let fd=0;
+    for(let d=1;d<=mDim;d++){const ds=`${ay}-${String(am).padStart(2,'0')}-${String(d).padStart(2,'0')}`;if(getDayPct(ds)===1&&D.activities.length)fd++;}
+    return `<div class="arch-row" onclick="selMonth='${mk}';switchTab('monthly')">
+      <div><div class="arch-name">${MONTHS[am-1]} ${ay}</div><div class="arch-meta">${fd} hari penuh · ${D.monthlyNotes[mk]?'ada catatan':'—'}</div></div>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--sand)" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>`;
+  }).join('');
+  return `
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div class="card-title" style="margin:0">${ico('leaf',17)} ${MONTHS[m-1]} ${y}</div>
+      <span style="font-size:10px;font-weight:600;letter-spacing:.6px;color:var(--amber);background:var(--orange-pale);padding:4px 10px;border-radius:20px">BULAN INI</span>
+    </div>
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-val">${cD}</div><div class="stat-label">Hari Penuh</div></div>
+      <div class="stat-box"><div class="stat-val">${jD}</div><div class="stat-label">Jurnal</div></div>
+      <div class="stat-box"><div class="stat-val">${D.streak}</div><div class="stat-label">Streak</div></div>
+    </div>
+    <div style="font-size:11px;font-weight:600;color:var(--text-light);margin-bottom:7px;letter-spacing:.5px;text-transform:uppercase">Catatan Folder</div>
+    <textarea id="fn-text" rows="4" placeholder="Agenda, target, atau catatan khusus bulan ini…">${D.folders[cm]?.notes||''}</textarea>
+    <div style="margin-top:10px"><button class="btn btn-p btn-sm" onclick="saveFN()">Simpan</button></div>
+  </div>
+  <div class="card">
+    <div class="card-title">${ico('clock',17)} Arsip Bulan Lalu</div>
+    ${archHTML}
+  </div>`;
+}
+function saveFN(){D.folders[monthStr()]={notes:document.getElementById('fn-text')?.value||''};save();toast('Tersimpan')}
+
+// ─── SETTINGS ─────────────────────────────────────────────────────────────────
+function renderSettings(){
+  let addPanel='';
+  if(addOpen){
+    const dayBtns=DAY_S.map((d,i)=>{
+      const sel=newDays.includes(i);
+      return `<button onclick="toggleDay(${i})" style="padding:7px 11px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;border:1.5px solid ${sel?'var(--amber)':'var(--sand)'};background:${sel?'var(--orange-pale)':'var(--paper)'};color:${sel?'var(--rust)':'var(--text-light)'};letter-spacing:.4px;transition:all .15s">${d}</button>`;
+    }).join('');
+    const iconGrid=ICON_KEYS.map(k=>`<div class="icon-opt ${k===newIcon?'sel':''}" onclick="newIcon='${k}';showPicker=false;render()" title="${ICON_LABELS[k]||k}">${ico(k,21)}</div>`).join('');
+    addPanel=`<div class="add-panel">
+      <div style="font-size:13px;font-weight:600;color:var(--brown);margin-bottom:12px;letter-spacing:.3px">Kegiatan Baru</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button onclick="showPicker=!showPicker;render()" style="width:44px;height:44px;border-radius:12px;flex-shrink:0;cursor:pointer;background:var(--paper);border:1.5px solid var(--sand);display:flex;align-items:center;justify-content:center">${ico(newIcon,21)}</button>
+        <input type="text" id="new-name" placeholder="Nama kegiatan…"/>
+      </div>
+      ${showPicker?`<div class="icon-grid">${iconGrid}</div>`:''}
+      <div style="margin-bottom:13px">
+        <div style="font-size:10px;font-weight:600;color:var(--text-light);letter-spacing:.6px;text-transform:uppercase;margin-bottom:7px">Aktif pada hari</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px">${dayBtns}</div>
+      </div>
+      <div style="display:flex;gap:7px">
+        <button class="btn btn-p btn-sm" onclick="addAct()">Simpan</button>
+        <button class="btn btn-g btn-sm" onclick="addOpen=false;showPicker=false;render()">Batal</button>
+      </div>
+    </div>`;
+  }
+
+  const listHTML=!D.activities.length
+    ?`<div class="empty">Belum ada kegiatan. Tambahkan rutinmu.</div>`
+    :D.activities.map(a=>{
+      const dayLabels=DAY_S.filter((_,i)=>a.days.includes(i)).join(' · ');
+      return `<div class="manage-row">
+        <div class="manage-ico">${ico(a.iconKey,17)}</div>
+        <div style="flex:1"><div class="manage-name">${a.name}</div><div class="manage-days">${dayLabels}</div></div>
+        <button onclick="removeAct('${a.id}')" style="width:30px;height:30px;border-radius:50%;background:transparent;border:1px solid var(--sand);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-light);font-size:14px;flex-shrink:0;transition:all .15s" onmouseover="this.style.background='#fff5f5';this.style.borderColor='#e8c0c0';this.style.color='#b94040'" onmouseout="this.style.background='transparent';this.style.borderColor='var(--sand)';this.style.color='var(--text-light)'">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>`;
+    }).join('');
+
+  const levelsHTML=LEVELS.map(lv=>{
+    const cur=D.streak>=lv.min&&D.streak<=lv.max;
+    return `<div class="level-row ${cur?'cur':''}">
+      <div style="width:34px;height:34px;border-radius:10px;background:${cur?'var(--orange-pale)':'var(--paper)'};display:flex;align-items:center;justify-content:center;flex-shrink:0">${ico(lv.icon,17)}</div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:500;color:var(--brown)">${lv.name}</div><div style="font-size:11px;color:var(--text-light)">${lv.max===99999?lv.min+'+ hari':lv.min+'–'+lv.max+' hari'}</div></div>
+      ${cur?`<span class="level-tag">KAMU</span>`:''}
+    </div>`;
+  }).join('');
+
+  return `
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:${addOpen?15:13}px">
+      <div class="card-title" style="margin:0">${ico('target',17)} Kegiatan</div>
+      ${!addOpen?`<button class="btn btn-p btn-sm" onclick="addOpen=true;newIcon='target';newDays=[0,1,2,3,4,5,6];render()">+ Tambah</button>`:''}
+    </div>
+    ${addPanel}${listHTML}
+  </div>
+  <div class="card">
+    <div class="card-title">${ico('star',17)} Level Streak</div>
+    ${levelsHTML}
+  </div>
+  <div class="card">
+    <div class="card-title" style="color:#b94040">${ico('moon',17)} Reset</div>
+    <p style="font-size:13px;color:var(--text-light);margin-bottom:12px;line-height:1.6">Reset streak ke 0. Jurnal dan kegiatan tetap tersimpan.</p>
+    <button class="btn btn-d btn-sm btn-block" onclick="resetStreak()">Reset Streak</button>
+  </div>`;
+}
+
+function toggleDay(i){newDays=newDays.includes(i)?newDays.filter(d=>d!==i):[...newDays,i].sort();render()}
+function addAct(){
+  const name=document.getElementById('new-name')?.value?.trim();
+  if(!name)return;
+  D.activities.push({id:Date.now().toString(),name,iconKey:newIcon,days:[...newDays]});
+  save();addOpen=false;showPicker=false;render();toast('Kegiatan ditambahkan');
+}
+function removeAct(id){if(!confirm('Hapus kegiatan ini?'))return;D.activities=D.activities.filter(a=>a.id!==id);save();render()}
+function resetStreak(){if(!confirm('Reset streak?'))return;D.streak=0;D.aiMessages={};save();render();toast('Streak direset')}
+
+// ─── TOAST ────────────────────────────────────────────────────────────────────
+function toast(msg){
+  document.querySelectorAll('.toast').forEach(t=>t.remove());
+  const t=document.createElement('div');t.className='toast';t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>{t.style.transition='opacity .3s';t.style.opacity='0';setTimeout(()=>t.remove(),300)},2000);
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function render(){
+  renderHeader();
+  const c=document.getElementById('content');
+  c.style.animation='none';void c.offsetHeight;c.style.animation='fadeUp .3s ease both';
+  if(tab==='today')c.innerHTML=renderToday();
+  else if(tab==='journal')c.innerHTML=renderJournal();
+  else if(tab==='monthly')c.innerHTML=renderMonthly();
+  else if(tab==='folder')c.innerHTML=renderFolder();
+  else c.innerHTML=renderSettings();
+  // auto-save on blur
+  const map={'j-today':saveJToday,'j-text':saveJDate,'mn-text':saveMN,'fn-text':saveFN};
+  Object.entries(map).forEach(([id,fn])=>{const el=document.getElementById(id);if(el)el.addEventListener('blur',fn)});
+}
+render();
+</script>
+</body>
+</html>
