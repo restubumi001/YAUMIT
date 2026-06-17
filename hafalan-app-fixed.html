@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hafalan Matan & Al-Qur'an</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #3D1A00 0%, #7C4A00 50%, #4A0030 100%);
+            min-height: 100vh;
+        }
+        .hidden { display: none !important; }
+        
+        /* LOGIN */
+        .login-screen {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .logo { text-align: center; margin-bottom: 40px; }
+        .logo-emoji { font-size: 52px; }
+        .logo-title { color: #F5C542; font-size: 11px; letter-spacing: 6px; margin: 8px 0; }
+        .logo-main { color: white; font-size: 26px; font-weight: 700; line-height: 1.3; }
+        .logo-sub { color: rgba(255,255,255,0.5); font-size: 13px; margin-top: 8px; }
+        
+        .login-card {
+            background: rgba(255,255,255,0.07);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 20px;
+            padding: 32px;
+            width: 100%;
+            max-width: 380px;
+        }
+        .login-label { color: rgba(255,255,255,0.6); text-align: center; margin-bottom: 20px; font-size: 12px; letter-spacing: 2px; }
+        
+        .user-option {
+            width: 100%;
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 2px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05);
+            border-radius: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: all 0.2s;
+            color: white;
+            text-align: left;
+        }
+        .user-option:hover { border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); }
+        .user-avatar { font-size: 32px; }
+        .user-name { font-weight: 700; font-size: 16px; }
+        .user-email { color: rgba(255,255,255,0.4); font-size: 12px; }
+        
+        .btn {
+            width: 100%;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 12px;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: linear-gradient(135deg, #92400E, #B45309); color: white; }
+        .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(146,64,14,0.3); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        /* APP */
+        .app-screen { display: flex; flex-direction: column; min-height: 100vh; }
+        
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #2D1500;
+            border-bottom: 2px solid #92400E;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .topbar-left { display: flex; align-items: center; gap: 10px; color: white; }
+        .topbar-emoji { font-size: 22px; }
+        .topbar-label { color: #F5C542; font-size: 10px; letter-spacing: 3px; }
+        .topbar-name { color: white; font-size: 13px; font-weight: 700; margin-top: 2px; }
+        
+        .topbar-buttons { display: flex; gap: 8px; }
+        .nav-btn {
+            padding: 6px 12px;
+            border: none;
+            background: rgba(255,255,255,0.08);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .nav-btn.active { background: #92400E; }
+        .nav-btn.queen-active { background: #7E22CE; }
+        
+        .content { flex: 1; max-width: 800px; margin: 0 auto; width: 100%; padding: 24px 16px; }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.1);
+        }
+        .card.king { border: 1px solid #F5E6D3; }
+        .card.queen { border: 1px solid #F3E8FF; }
+        
+        .header { margin-bottom: 24px; }
+        .header-emoji { font-size: 36px; margin-bottom: 12px; }
+        .header-title { font-size: 22px; font-weight: 800; color: #1C0A00; }
+        .header-sub { font-size: 13px; color: #78716C; margin-top: 4px; }
+        
+        label { display: block; margin: 14px 0 8px; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; }
+        label.king { color: #92400E; }
+        label.queen { color: #7E22CE; }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+            font-family: inherit;
+            font-size: 14px;
+            margin-bottom: 12px;
+            box-sizing: border-box;
+        }
+        input.king, textarea.king, select.king { border-color: #E7D5B8; background: #FFFAF5; }
+        input.king:focus, textarea.king:focus, select.king:focus { outline: none; border-color: #92400E; box-shadow: 0 0 0 3px rgba(146,64,14,0.1); }
+        
+        input.queen, textarea.queen, select.queen { border-color: #E9D5FF; background: #FDF4FF; }
+        input.queen:focus, textarea.queen:focus, select.queen:focus { outline: none; border-color: #7E22CE; box-shadow: 0 0 0 3px rgba(126,34,206,0.1); }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .stat { text-align: center; }
+        .stat-num { font-size: 24px; font-weight: 700; }
+        .stat-label { font-size: 12px; color: #666; margin-top: 5px; }
+        
+        .toast {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            border-radius: 30px;
+            z-index: 999;
+            font-family: sans-serif;
+            font-size: 14px;
+            animation: slideIn 0.3s ease;
+        }
+        .toast.success { background: #2d6a4f; color: white; }
+        .toast.error { background: #c1121f; color: white; }
+        @keyframes slideIn {
+            from { transform: translateX(-50%) translateY(-30px); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
+        }
+        
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .text-center { text-align: center; }
+        .mt-20 { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <!-- LOGIN SCREEN -->
+    <div id="loginScreen" class="login-screen">
+        <div class="logo">
+            <div class="logo-emoji">📿</div>
+            <div class="logo-title">Buku Mutaba'ah Digital</div>
+            <div class="logo-main">Hafalan Matan<br/>& Al-Qur'an</div>
+            <div class="logo-sub">King Bumii × Queen Annaaa</div>
+        </div>
+        
+        <div class="login-card">
+            <div class="login-label">PILIH AKUN</div>
+            <button class="user-option" onclick="selectUser('king')">
+                <div class="user-avatar">👑</div>
+                <div>
+                    <div class="user-name">King Bumii</div>
+                    <div class="user-email">kingbumii@gmail.com</div>
+                </div>
+            </button>
+            <button class="user-option" onclick="selectUser('queen')">
+                <div class="user-avatar">👸</div>
+                <div>
+                    <div class="user-name">Queen Annaaa</div>
+                    <div class="user-email">queenannaaa@gmail.com</div>
+                </div>
+            </button>
+            <button class="btn btn-primary" id="loginBtn" onclick="login()" disabled>Pilih akun terlebih dahulu</button>
+        </div>
+    </div>
+    
+    <!-- APP SCREEN -->
+    <div id="appScreen" class="app-screen hidden">
+        <div class="topbar" id="topbar"></div>
+        <div id="toast" class="toast hidden"></div>
+        <div class="content" id="content"></div>
+    </div>
+    
+    <script>
+        const USERS = {
+            king: { id: "king", name: "King Bumii", role: "king", avatar: "👑" },
+            queen: { id: "queen", name: "Queen Annaaa", role: "queen", avatar: "👸" }
+        };
+
+        const MATAN = [
+            { id: 1, bab: "Muqaddimah", arab: "يقول راجي عفو ربين سامع", arti: "Berkata seorang yang mengharapkan" },
+            { id: 2, bab: "Muqaddimah", arab: "محمد بن الجزري الشافعي", arti: "Muhammad bin Al-Jazari" },
+            { id: 3, bab: "Keutamaan", arab: "الحمد لله والصلاة على", arti: "Segala puji bagi Allah" },
+            { id: 4, bab: "Makhraj", arab: "مخارج الحروف سبعة عشر", arti: "Makhraj huruf ada tujuh belas" },
+            { id: 5, bab: "Sifat", arab: "والصفات تجري نحو هذا", arti: "Dan sifat-sifat huruf" }
+        ];
+
+        let currentUser = null;
+        let currentPage = "dashboard";
+        let selectedRole = null;
+        
+        let setoranQuran = JSON.parse(localStorage.getItem("setoranQuran") || "[]");
+        let nilaiQuran = JSON.parse(localStorage.getItem("nilaiQuran") || "[]");
+        let setoranMatan = JSON.parse(localStorage.getItem("setoranMatan") || "[]");
+        let nilaiMatan = JSON.parse(localStorage.getItem("nilaiMatan") || "[]");
+
+        function save() {
+            localStorage.setItem("setoranQuran", JSON.stringify(setoranQuran));
+            localStorage.setItem("nilaiQuran", JSON.stringify(nilaiQuran));
+            localStorage.setItem("setoranMatan", JSON.stringify(setoranMatan));
+            localStorage.setItem("nilaiMatan", JSON.stringify(nilaiMatan));
+        }
+
+        function showToast(msg, type = "success") {
+            const el = document.getElementById("toast");
+            el.textContent = msg;
+            el.className = `toast ${type}`;
+            el.classList.remove("hidden");
+            setTimeout(() => el.classList.add("hidden"), 3000);
+        }
+
+        function selectUser(role) {
+            selectedRole = role;
+            const btn = document.getElementById("loginBtn");
+            btn.disabled = false;
+            btn.textContent = `Masuk sebagai ${USERS[role].name}`;
+        }
+
+        function login() {
+            if (!selectedRole) return;
+            currentUser = USERS[selectedRole];
+            document.getElementById("loginScreen").classList.add("hidden");
+            document.getElementById("appScreen").classList.remove("hidden");
+            render();
+        }
+
+        function logout() {
+            currentUser = null;
+            currentPage = "dashboard";
+            selectedRole = null;
+            document.getElementById("appScreen").classList.add("hidden");
+            document.getElementById("loginScreen").classList.remove("hidden");
+        }
+
+        function setPage(page) {
+            currentPage = page;
+            render();
+        }
+
+        function render() {
+            renderTopbar();
+            renderContent();
+        }
+
+        function renderTopbar() {
+            const isKing = currentUser.role === "king";
+            document.getElementById("topbar").innerHTML = `
+                <div class="topbar-left">
+                    <span class="topbar-emoji">📿</span>
+                    <div>
+                        <div class="topbar-label">MUTABA'AH</div>
+                        <div class="topbar-name">${currentUser.name}</div>
+                    </div>
+                </div>
+                <div class="topbar-buttons">
+                    <button class="nav-btn ${currentPage === "dashboard" ? isKing ? "active" : "queen-active" : ""}" onclick="setPage('dashboard')">🏠</button>
+                    <button class="nav-btn ${currentPage === "riwayat" ? isKing ? "active" : "queen-active" : ""}" onclick="setPage('riwayat')">📊</button>
+                    <button class="nav-btn" onclick="logout()">Keluar</button>
+                </div>
+            `;
+        }
+
+        function renderContent() {
+            const isKing = currentUser.role === "king";
+            let html = "";
+
+            if (currentPage === "dashboard") {
+                if (isKing) {
+                    const pct = Math.round(Math.random() * 60);
+                    html = `
+                        <div class="header">
+                            <div class="header-emoji">📖</div>
+                            <div class="header-title">King Bumii 👑</div>
+                        </div>
+                        <div class="stats">
+                            <div class="stat">
+                                <div class="stat-num" style="color: #92400E;">45</div>
+                                <div class="stat-label">Halaman Selesai</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-num" style="color: #92400E;">${setoranQuran.length}</div>
+                                <div class="stat-label">Total Setoran</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-num" style="color: #92400E;">${pct}%</div>
+                                <div class="stat-label">Progress</div>
+                            </div>
+                        </div>
+                        <div class="card king">
+                            <label class="king">Progress Al-Qur'an</label>
+                            <div style="font-size: 32px; font-weight: 800; color: #1C0A00; margin: 12px 0;">${pct}%</div>
+                            <button class="btn btn-primary" onclick="setPage('setor-quran')">+ Setor Hafalan</button>
+                        </div>
+                    `;
+                } else {
+                    const pct = Math.round((nilaiMatan.filter(n => n.status === "lancar").length / MATAN.length) * 100);
+                    html = `
+                        <div class="header">
+                            <div class="header-emoji">📚</div>
+                            <div class="header-title">Queen Annaaa 👸 🌸</div>
+                        </div>
+                        <div class="stats">
+                            <div class="stat">
+                                <div class="stat-num" style="color: #7E22CE;">${nilaiMatan.filter(n => n.status === "lancar").length}</div>
+                                <div class="stat-label">Bait Lancar</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-num" style="color: #7E22CE;">${setoranMatan.length}</div>
+                                <div class="stat-label">Total Setoran</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-num" style="color: #7E22CE;">${pct}%</div>
+                                <div class="stat-label">Progress</div>
+                            </div>
+                        </div>
+                        <div class="card queen">
+                            <label class="queen">Progress Matan</label>
+                            <div style="font-size: 32px; font-weight: 800; color: #7E22CE; margin: 12px 0;">${nilaiMatan.filter(n => n.status === "lancar").length}/${MATAN.length}</div>
+                            <button class="btn btn-primary" style="background: linear-gradient(135deg, #7E22CE, #EC4899);" onclick="setPage('setor-matan')">🌸 Setor Hafalan</button>
+                        </div>
+                    `;
+                }
+            } else if (currentPage === "riwayat") {
+                html = `
+                    <div class="header">
+                        <div class="header-emoji">📊</div>
+                        <div class="header-title">Riwayat</div>
+                    </div>
+                    <div class="card ${currentUser.role === "king" ? "king" : "queen"}">
+                        <p style="color: #78716C;">Total: ${currentUser.role === "king" ? setoranQuran.length : setoranMatan.length} setoran</p>
+                    </div>
+                `;
+            } else if (currentPage === "setor-quran") {
+                html = `
+                    <div class="header">
+                        <div class="header-emoji">📖</div>
+                        <div class="header-title">Setor Hafalan</div>
+                        <div class="header-sub">Al-Qur'an</div>
+                    </div>
+                    <div class="card king">
+                        <label class="king">Surah</label>
+                        <input type="text" id="surah" class="king" placeholder="Misal: Al-Baqarah">
+                        <label class="king">Ayat (dari - sampai)</label>
+                        <div class="grid-2">
+                            <input type="number" id="ayatDari" class="king" placeholder="Dari" style="margin-bottom: 0;">
+                            <input type="number" id="ayatSampai" class="king" placeholder="Sampai" style="margin-bottom: 0;">
+                        </div>
+                        <label class="king">Juz</label>
+                        <select id="juz" class="king">
+                            <option value="1">Juz 1</option>
+                            <option value="2">Juz 2</option>
+                            <option value="3">Juz 3</option>
+                            <option value="4">Juz 4</option>
+                            <option value="5">Juz 5</option>
+                        </select>
+                        <button class="btn btn-primary" onclick="submitQuran()">📤 Kirim Setoran</button>
+                        <button class="btn btn-primary" style="background: #999; margin-top: 8px;" onclick="setPage('dashboard')">← Kembali</button>
+                    </div>
+                `;
+            } else if (currentPage === "setor-matan") {
+                html = `
+                    <div class="header">
+                        <div class="header-emoji">📚</div>
+                        <div class="header-title">Setor Hafalan Matan</div>
+                    </div>
+                    <div class="card queen">
+                        ${MATAN.map(m => `
+                            <div style="padding: 12px; background: #FDF4FF; border-radius: 8px; margin-bottom: 8px; cursor: pointer;" onclick="toggleMatan(${m.id})">
+                                <input type="checkbox" id="m${m.id}">
+                                <label for="m${m.id}" style="margin: 0; font-size: 12px; color: #7E22CE; cursor: pointer;">
+                                    <strong>Bait #${m.id}</strong> - ${m.arab}
+                                </label>
+                            </div>
+                        `).join('')}
+                        <button class="btn btn-primary" style="background: linear-gradient(135deg, #7E22CE, #EC4899); margin-top: 20px;" onclick="submitMatan()">🌸 Setorkan</button>
+                        <button class="btn btn-primary" style="background: #999;" onclick="setPage('dashboard')">← Kembali</button>
+                    </div>
+                `;
+            }
+
+            document.getElementById("content").innerHTML = html;
+        }
+
+        function submitQuran() {
+            const surah = document.getElementById("surah").value;
+            const ayatDari = document.getElementById("ayatDari").value;
+            const ayatSampai = document.getElementById("ayatSampai").value;
+            const juz = document.getElementById("juz").value;
+
+            if (!surah || !ayatDari || !ayatSampai) {
+                return showToast("Isi semua field!", "error");
+            }
+
+            setoranQuran.push({
+                id: Date.now(),
+                surah,
+                ayatDari,
+                ayatSampai,
+                juz,
+                tanggal: new Date().toLocaleDateString('id-ID')
+            });
+            save();
+            showToast("✅ Setoran berhasil dicatat!");
+            setPage("dashboard");
+        }
+
+        function toggleMatan(id) {
+            const cb = document.getElementById(`m${id}`);
+            cb.checked = !cb.checked;
+        }
+
+        function submitMatan() {
+            const checked = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => {
+                const id = parseInt(cb.id.replace('m', ''));
+                return MATAN.find(m => m.id === id);
+            });
+
+            if (checked.length === 0) {
+                return showToast("Pilih minimal 1 bait!", "error");
+            }
+
+            checked.forEach(m => {
+                setoranMatan.push({
+                    id: Date.now() + Math.random(),
+                    baitId: m.id,
+                    arab: m.arab,
+                    tanggal: new Date().toLocaleDateString('id-ID')
+                });
+            });
+            save();
+            showToast(`✅ ${checked.length} bait berhasil disetorkan!`);
+            setPage("dashboard");
+        }
+    </script>
+</body>
+</html>
