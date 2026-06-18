@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Hafalan Matan & Al-Qur'an · King Bumii × Queen Annaaa</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Georgia,serif;background:#F5EFE6}
+  input,select,textarea{font-family:Georgia,serif}
+  button{font-family:Georgia,serif}
+  ::-webkit-scrollbar{width:6px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useRef}=React;
+
+// ── DATA BAIT ──────────────────────────────────────────────
+const URJUZAH_BAIT=[
+  {id:1,bab:"Muqaddimah",arab:"يَقُولُ رَاجِي عَفْوِ رَبٍّ سَامِعِ",latin:"Yaqūlu rājī 'afwa Rabbin sāmi'i",arti:"Berkata seorang yang mengharapkan ampunan Rabb Yang Maha Mendengar"},
+  {id:2,bab:"Muqaddimah",arab:"مُحَمَّدُ بْنُ الجَزَرِيِّ الشَّافِعِي",latin:"Muhammadubnu l-Jazariyyi sh-Shāfi'ī",arti:"Muhammad bin Al-Jazari Asy-Syafi'i"},
+  {id:3,bab:"Muqaddimah",arab:"الحَمْدُ للهِ وَصَلَّى اللهُ عَلَى",latin:"Al-hamdu lillāhi wa shallallāhu 'alā",arti:"Segala puji bagi Allah dan semoga Allah bershalawat atas"},
+  {id:4,bab:"Muqaddimah",arab:"مُحَمَّدٍ نَبِيِّهِ وَمَنْ تَلَا",latin:"Muhammadin nabiyyihī wa man talā",arti:"Muhammad Nabi-Nya dan siapa yang mengikutinya"},
+  {id:5,bab:"Keutamaan Tajwid",arab:"وَبَعْدُ إِنَّ هَذِهِ مُقَدِّمَه",latin:"Wa ba'du inna hādhihi muqaddimah",arti:"Dan kemudian, sesungguhnya ini adalah muqaddimah"},
+  {id:6,bab:"Keutamaan Tajwid",arab:"فِيمَا عَلَى قَارِئِهِ أَنْ يَعْلَمَه",latin:"Fīmā 'alā qāri'ihī an ya'lamah",arti:"Tentang apa yang wajib diketahui oleh pembacanya"},
+  {id:7,bab:"Keutamaan Tajwid",arab:"وَمَنْ يُجَوِّدِ القُرآنَ يَنَلْ",latin:"Wa man yujawwidil qur'āna yanol",arti:"Dan barangsiapa yang mentajwidkan Al-Qur'an maka ia akan mendapat"},
+  {id:8,bab:"Keutamaan Tajwid",arab:"مِنَ اللهِ الرِّضَا وَالفَضْلَ وَالنُّبَلْ",latin:"Minallāhir ridhā wal fadhla wan nubal",arti:"Dari Allah keridhaan, keutamaan, dan kemuliaan"},
+  {id:9,bab:"Makharijul Huruf",arab:"مَخَارِجُ الحُرُوفِ سَبْعَةَ عَشَرْ",latin:"Makhārijul hurūfi sab'ata 'ashar",arti:"Makhraj huruf ada tujuh belas"},
+  {id:10,bab:"Makharijul Huruf",arab:"عَلَى الَّذِي يَخْتَارُهُ مَنْ حَرَّرَه",latin:"'Alal lladhī yakhtāruhu man harrarah",arti:"Menurut pendapat yang dipilih oleh para ahli yang membahasnya"},
+  {id:11,bab:"Makharijul Huruf",arab:"فَأَلِفٌ ثُمَّ مِنَ الجَوْفِ وَهُوَ",latin:"Fa alifun thumma minal jawfi wa hwa",arti:"Maka Alif, kemudian dari rongga mulut yaitu"},
+  {id:12,bab:"Makharijul Huruf",arab:"هَوَاؤُهُ وَمَا لِوَاوٍ أَوْ يَا",latin:"Hawā'uhu wa mā liwāwin aw yā",arti:"Udara kosongnya, dan untuk Waw atau Ya"},
+  {id:13,bab:"Makharijul Huruf",arab:"لِلْحَلْقِ أَقْصَاهُ فَهَمْزٌ هَاءُ",latin:"Lil halqi aqshāhu fa hamzun hā'u",arti:"Untuk tenggorokan, yang paling ujung adalah Hamzah dan Ha"},
+  {id:14,bab:"Makharijul Huruf",arab:"ثُمَّ لِوَسَطِهِ فَعَيْنٌ حَاءُ",latin:"Thumma liwasatihi fa 'ainun hā'u",arti:"Kemudian untuk tengah tenggorokan maka 'Ain dan Ha"},
+  {id:15,bab:"Makharijul Huruf",arab:"أَدْنَاهُ غَيْنٌ خَاؤُهَا وَاللِّسَانُ",latin:"Adnāhu ghainun khā'uhā wal lisānu",arti:"Yang paling dekat adalah Ghain dan Kha, dan lidah"},
+  {id:16,bab:"Sifatul Huruf",arab:"وَالصِّفَاتُ جَهْرٌ وَرَخَاوَةٌ",latin:"Wash shifātu jahrun wa rakhāwah",arti:"Dan sifat-sifat huruf adalah Jahr dan Rakhawah"},
+  {id:17,bab:"Sifatul Huruf",arab:"شِدَّةٌ اسْتِعْلَا إِطْبَاقٌ صَفِيرُ",latin:"Shiddatun isti'lā ithbāqun shafīr",arti:"Syiddah, Isti'la, Ithbaq, dan Shafir"},
+  {id:18,bab:"Sifatul Huruf",arab:"وَاللِّينُ وَالانْحِرَافُ صَحَّ",latin:"Wal linu wal inhirāfu shaha",arti:"Dan Lin serta Inhiraf telah sahih"},
+  {id:19,bab:"Sifatul Huruf",arab:"تَكْرِيرٌ مَعَ تَفَشِّي وَالاسْتِطَالَة",latin:"Takrīrun ma'a tafashshin wal istithālah",arti:"Takrir bersama Tafasysyi dan Istithalah"},
+  {id:20,bab:"Nun Mati & Tanwin",arab:"إِذَا تَنَوَّنَ اسْمٌ أَوْ نُونٌ سَكَنْ",latin:"Idhā tanawwana smun aw nūnun sakan",arti:"Apabila ada isim bertanwin atau nun mati"},
+  {id:21,bab:"Nun Mati & Tanwin",arab:"فَلِلإِخْفَا وَالإِدْغَامِ وَالقَلْبِ أَبَنْ",latin:"Falil ikhfā' wal idghāmi wal qalbi aban",arti:"Maka berlaku ikhfa, idgham, dan iqlab yang nyata"},
+  {id:22,bab:"Nun Mati & Tanwin",arab:"وَالإِظْهَارُ عِنْدَ حُرُوفِ الحَلْقِ وَجَبْ",latin:"Wal izhāru 'inda hurūfil halqi wajab",arti:"Dan izhar wajib ketika bertemu huruf halq"},
+  {id:23,bab:"Nun Mati & Tanwin",arab:"وَالإِدْغَامُ فِي سِتَّةٍ يَرْمُلُونَ",latin:"Wal idghāmu fī sittatin yarmalūn",arti:"Dan idgham ada pada enam huruf YARMALUN"},
+  {id:24,bab:"Mim Mati",arab:"وَالمِيمُ إِنْ تَسْكُنْ تَجِي قَبْلَ الهِجَا",latin:"Wal mīmu in taskun tajī qablal hijā",arti:"Dan mim mati jika berada sebelum huruf hijaiyah"},
+  {id:25,bab:"Mim Mati",arab:"ثَلَاثَةً وَهْيَ اخْفَاءٌ مَعَ إِدْغَامٍ وَإِظْهَارٍ",latin:"Thalāthatan wahyal ikhfā'u ma'al idghāmi wal izhār",arti:"Ada tiga: ikhfa syafawi, idgham mislain, dan izhar syafawi"},
+  {id:26,bab:"Mad & Qasr",arab:"وَالمَدُّ لَازِمٌ وَوَاجِبٌ أَتَى",latin:"Wal maddu lāzimun wa wājibun atā",arti:"Dan mad ada yang lazim dan wajib"},
+  {id:27,bab:"Mad & Qasr",arab:"وَجَائِزٌ وَمَدُّ فَرْقٍ يُرْوَى",latin:"Wa jā'izun wa maddu farqin yurwā",arti:"Dan ada yang jaiz dan mad farq yang diriwayatkan"},
+  {id:28,bab:"Mad & Qasr",arab:"فَلَازِمٌ إِنْ جَاءَ بَعْدَ المَدِّ مَا",latin:"Fa lāzimun in jā'a ba'dal maddi mā",arti:"Mad lazim yaitu jika setelah huruf mad ada"},
+  {id:29,bab:"Mad & Qasr",arab:"هَمْزٌ أَوْ سُكُونٌ لَازِمَيْنِ فَاعْلَمَا",latin:"Hamzun aw sukūnun lāzimayni fa'lamā",arti:"Hamzah atau sukun yang lazim, maka ketahuilah"},
+  {id:30,bab:"Waqaf & Ibtida",arab:"وَالوَقْفُ بِالسُّكُونِ وَالرَّوْمِ وَالإِشَارَة",latin:"Wal waqfu bis sukūni war rawmi wal isyārah",arti:"Waqaf dilakukan dengan sukun, raum, dan isymam"},
+];
+
+const USERS={
+  king:{id:"king",name:"King Bumii",email:"kingbumii@gmail.com",role:"king",avatar:"👑"},
+  queen:{id:"queen",name:"Queen Annaaa",email:"queenannaaa@gmail.com",role:"queen",avatar:"👸"},
+};
+const NILAI_QURAN=[
+  {label:"Mumtaz",arab:"مُمْتَاز",min:90,color:"#7C3AED",emoji:"🏆"},
+  {label:"Jayyid Jiddan",arab:"جَيِّدٌ جِدًّا",min:80,color:"#2563EB",emoji:"⭐"},
+  {label:"Jayyid",arab:"جَيِّد",min:70,color:"#059669",emoji:"✅"},
+  {label:"Maqbul",arab:"مَقْبُول",min:60,color:"#D97706",emoji:"📖"},
+  {label:"Rasib",arab:"رَاسِب",min:0,color:"#DC2626",emoji:"🔄"},
+];
+const STIKER=["🌸","✨","💜","🎀","🌺","💫","🦋","🌷","💝","⭐","🌟","💖"];
+const SUWAR_LIST=["Al-Fatihah","Al-Baqarah","Ali Imran","An-Nisa","Al-Maidah","Al-An'am","Al-A'raf","Al-Anfal","At-Taubah","Yunus"];
+
+function getNilai(s){return NILAI_QURAN.find(n=>s>=n.min)||NILAI_QURAN[4];}
+function randomStiker(c=3){return Array.from({length:c},()=>STIKER[Math.floor(Math.random()*STIKER.length)]).join(" ");}
+function gs(k,d=null){try{return JSON.parse(localStorage.getItem(k))??d;}catch{return d;}}
+function ss(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
+function fmtDate(d){return new Date(d).toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"});}
+function hitungStreak(setor){
+  if(!setor.length)return 0;
+  const dates=[...new Set(setor.map(s=>new Date(s.tanggal).toDateString()))].sort((a,b)=>new Date(b)-new Date(a));
+  let streak=0,cur=new Date();
+  for(const d of dates){const diff=Math.round((cur-new Date(d))/86400000);if(diff<=1){streak++;cur=new Date(d);}else break;}
+  return streak;
+}
+
+// ── STYLES ────────────────────────────────────────────────
+const kCard={background:"#fff",borderRadius:16,padding:20,marginBottom:16,boxShadow:"0 2px 16px rgba(92,40,14,0.08)",border:"1px solid #F5E6D3"};
+const qCard={background:"#fff",borderRadius:16,padding:20,marginBottom:16,boxShadow:"0 2px 16px rgba(126,34,206,0.08)",border:"1px solid #F3E8FF"};
+const kBtn={background:"linear-gradient(135deg,#92400E,#B45309)",color:"#fff",border:"none",borderRadius:12,padding:"10px 20px",cursor:"pointer",fontWeight:700,fontSize:14};
+const qBtn={background:"linear-gradient(135deg,#7E22CE,#EC4899)",color:"#fff",border:"none",borderRadius:12,padding:"10px 20px",cursor:"pointer",fontWeight:700,fontSize:14};
+const kInput={width:"100%",padding:"12px 14px",borderRadius:12,border:"1px solid #E7D5B8",background:"#FFFAF5",fontSize:14,color:"#1C0A00",outline:"none",boxSizing:"border-box",fontFamily:"Georgia,serif"};
+const qInput={width:"100%",padding:"12px 14px",borderRadius:12,border:"1px solid #E9D5FF",background:"#FDF4FF",fontSize:14,color:"#1C0A00",outline:"none",boxSizing:"border-box",fontFamily:"Georgia,serif"};
+
+// ── SHARED COMPONENTS ─────────────────────────────────────
+function Toast({toast}){
+  if(!toast)return null;
+  return <div style={{position:"fixed",top:72,left:"50%",transform:"translateX(-50%)",background:toast.type==="success"?"#2d6a4f":"#c1121f",color:"#fff",padding:"10px 24px",borderRadius:30,zIndex:9999,fontFamily:"sans-serif",fontSize:14,boxShadow:"0 4px 20px rgba(0,0,0,0.2)",whiteSpace:"nowrap"}}>{toast.msg}</div>;
+}
+function PBar({pct,color}){
+  return <div style={{background:"rgba(0,0,0,0.08)",borderRadius:99,height:10,overflow:"hidden"}}><div style={{width:`${pct}%`,background:color,height:"100%",borderRadius:99,transition:"width 0.5s ease"}}/></div>;
+}
+function Lbl({children,q}){return <div style={{fontSize:11,letterSpacing:2,color:q?"#7E22CE":"#92400E",textTransform:"uppercase",marginBottom:6,marginTop:14}}>{children}</div>;}
+function PageHdr({title,sub,emoji,isKing,onBack}){
+  return <div style={{marginBottom:24}}>
+    {onBack&&<button onClick={onBack} style={{background:"none",border:"none",cursor:"pointer",color:isKing?"#92400E":"#7E22CE",fontSize:14,padding:0,marginBottom:12}}>← Kembali</button>}
+    <div style={{display:"flex",alignItems:"center",gap:12}}>
+      <div style={{fontSize:36}}>{emoji}</div>
+      <div><div style={{fontSize:22,fontWeight:800,color:"#1C0A00"}}>{title}</div><div style={{fontSize:13,color:"#78716C"}}>{sub}</div></div>
+    </div>
+  </div>;
+}
+function Empty({msg,isKing}){return <div style={{textAlign:"center",padding:40,color:isKing?"#92400E":"#A855F7"}}><div style={{fontSize:40}}>{isKing?"📿":"🌸"}</div><div style={{marginTop:12,fontSize:15}}>{msg}</div></div>;}
+function StatRow({label,val}){return <div style={{display:"flex",justifyContent:"space-between",padding:"8px 0",borderBottom:"1px solid rgba(0,0,0,0.05)"}}><span style={{fontSize:13,color:"#78716C"}}>{label}</span><span style={{fontSize:13,fontWeight:700,color:"#1C0A00"}}>{val}</span></div>;}
+
+function RatingSlider({val,setVal,labels}){
+  return <div style={{marginBottom:16}}>
+    <div style={{display:"flex",gap:8,marginBottom:6}}>
+      {[1,2,3,4].map(v=><button key={v} onClick={()=>setVal(v)} style={{flex:1,padding:"10px 4px",borderRadius:10,border:"none",cursor:"pointer",background:val===v?"#7E22CE":"#F3E8FF",color:val===v?"#fff":"#7E22CE",fontWeight:700,fontSize:16,transition:"all 0.2s"}}>{v}</button>)}
+    </div>
+    <div style={{fontSize:12,color:"#A855F7",textAlign:"center"}}>{labels[val-1]}</div>
+  </div>;
+}
+
+function navBtn(active,accent){return{padding:"6px 12px",borderRadius:8,border:"none",background:active?accent:"rgba(255,255,255,0.08)",color:"#fff",cursor:"pointer",fontSize:14,transition:"all 0.2s"};}
+
+// ── LOGIN ─────────────────────────────────────────────────
+function LoginPage({onLogin}){
+  const [sel,setSel]=useState(null);
+  return <div style={{minHeight:"100vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",background:"linear-gradient(135deg,#3D1A00 0%,#7C4A00 50%,#4A0030 100%)",padding:24,fontFamily:"Georgia,serif"}}>
+    <div style={{textAlign:"center",marginBottom:40}}>
+      <div style={{fontSize:52,marginBottom:8}}>📿</div>
+      <div style={{color:"#F5C542",fontSize:11,letterSpacing:6,textTransform:"uppercase",marginBottom:6}}>Buku Mutaba'ah Digital</div>
+      <div style={{color:"#fff",fontSize:26,fontWeight:700,lineHeight:1.3}}>Hafalan Matan<br/>&amp; Al-Qur'an</div>
+      <div style={{color:"rgba(255,255,255,0.5)",fontSize:13,marginTop:6}}>King Bumii × Queen Annaaa</div>
+    </div>
+    <div style={{background:"rgba(255,255,255,0.07)",border:"1px solid rgba(255,255,255,0.15)",borderRadius:20,padding:32,width:"100%",maxWidth:380}}>
+      <div style={{color:"rgba(255,255,255,0.6)",fontSize:12,textAlign:"center",marginBottom:20,letterSpacing:2}}>PILIH AKUN</div>
+      {[USERS.king,USERS.queen].map(u=>(
+        <button key={u.id} onClick={()=>setSel(u.id)} style={{width:"100%",padding:"16px 20px",marginBottom:12,borderRadius:14,border:sel===u.id?`2px solid ${u.role==="king"?"#F5C542":"#E879F9"}`:"2px solid rgba(255,255,255,0.1)",background:sel===u.id?(u.role==="king"?"rgba(245,197,66,0.15)":"rgba(232,121,249,0.15)"):"rgba(255,255,255,0.05)",cursor:"pointer",display:"flex",alignItems:"center",gap:14,transition:"all 0.2s"}}>
+          <div style={{fontSize:32}}>{u.avatar}</div>
+          <div style={{textAlign:"left"}}><div style={{color:"#fff",fontWeight:700,fontSize:16}}>{u.name}</div><div style={{color:"rgba(255,255,255,0.4)",fontSize:12}}>{u.email}</div></div>
+          {sel===u.id&&<div style={{marginLeft:"auto",color:u.role==="king"?"#F5C542":"#E879F9",fontSize:20}}>✓</div>}
+        </button>
+      ))}
+      <button onClick={()=>sel&&onLogin(USERS[sel])} disabled={!sel} style={{width:"100%",padding:14,marginTop:8,borderRadius:14,border:"none",background:sel?(sel==="king"?"linear-gradient(135deg,#92400E,#B45309)":"linear-gradient(135deg,#7E22CE,#EC4899)"):"rgba(255,255,255,0.1)",color:sel?"#fff":"rgba(255,255,255,0.3)",fontSize:15,fontWeight:700,cursor:sel?"pointer":"not-allowed",letterSpacing:1,transition:"all 0.2s"}}>
+        {sel?`Masuk sebagai ${USERS[sel]?.name}`:"Pilih akun terlebih dahulu"}
+      </button>
+    </div>
+    <div style={{color:"rgba(255,255,255,0.3)",fontSize:11,marginTop:24,textAlign:"center"}}>Aplikasi privat · King Bumii & Queen Annaaa · 2026</div>
+  </div>;
+}
+
+// ── TOPBAR ────────────────────────────────────────────────
+function TopBar({user,page,setPage,onLogout}){
+  const isKing=user.role==="king";
+  const accent=isKing?"#92400E":"#7E22CE";
+  return <div style={{position:"sticky",top:0,zIndex:100,background:isKing?"#2D1500":"#1A0030",borderBottom:`2px solid ${accent}`,padding:"12px 20px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+    <div style={{display:"flex",alignItems:"center",gap:10}}>
+      <span style={{fontSize:22}}>📿</span>
+      <div><div style={{color:"#F5C542",fontSize:10,letterSpacing:3}}>MUTABA'AH</div><div style={{color:"#fff",fontSize:13,fontWeight:700}}>{user.name}</div></div>
+    </div>
+    <div style={{display:"flex",gap:8,alignItems:"center"}}>
+      <button onClick={()=>setPage("dashboard")} style={navBtn(page==="dashboard",accent)}>🏠</button>
+      <button onClick={()=>setPage("riwayat")} style={navBtn(page==="riwayat",accent)}>📊</button>
+      <button onClick={()=>setPage("rekomendasi")} style={navBtn(page==="rekomendasi",accent)}>🤖</button>
+      <button onClick={onLogout} style={{...navBtn(false,"#555"),fontSize:12}}>Keluar</button>
+    </div>
+  </div>;
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────
+function Dashboard({user,quranStor,matanStor,quranNilai,matanNilai,matanList,setPage}){
+  const isKing=user.role==="king";
+  const totalTarget=100;
+  const halamanSelesai=[...new Set(quranNilai.map(n=>n.setorId))].length;
+  const pct=Math.min(100,Math.round((halamanSelesai/totalTarget)*100));
+  const lastQN=quranNilai.length?quranNilai[quranNilai.length-1]:null;
+  const lastNilai=lastQN?getNilai(lastQN.skor):null;
+  const baitSelesai=matanNilai.filter(n=>n.status==="lancar").length;
+  const totalBait=matanList.length;
+  const quranPending=quranStor.filter(s=>!quranNilai.find(n=>n.setorId===s.id)).length;
+  const matanPending=matanStor.filter(s=>!matanNilai.find(n=>n.setorId===s.id)).length;
+  const streak=hitungStreak(isKing?quranStor:matanStor);
+  const days=Math.max(0,Math.round((new Date("2027-01-01")-new Date())/86400000));
+
+  if(isKing) return <DashKing {...{pct,halamanSelesai,totalTarget,lastNilai,lastQN,baitSelesai,totalBait,matanPending,quranPending,streak,setPage,matanNilai,quranNilai,days}}/>;
+  return <DashQueen {...{pct,halamanSelesai,totalTarget,lastNilai,lastQN,baitSelesai,totalBait,matanPending,quranPending,streak,setPage,matanNilai,quranNilai}}/>;
+}
+
+function DashKing({pct,halamanSelesai,totalTarget,lastNilai,lastQN,baitSelesai,totalBait,matanPending,quranPending,streak,setPage,matanNilai,quranNilai,days}){
+  return <div>
+    <div style={{marginBottom:28}}>
+      <div style={{color:"#92400E",fontSize:11,letterSpacing:4,textTransform:"uppercase"}}>Assalamu'alaikum</div>
+      <div style={{fontSize:26,fontWeight:800,color:"#1C0A00",lineHeight:1.2,marginTop:4}}>King Bumii 👑</div>
+      <div style={{color:"#78716C",fontSize:14,marginTop:6}}>Sisa <strong>{days}</strong> hari menuju target 10 Juz · 2027</div>
+    </div>
+    <div style={kCard}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:16}}>
+        <div>
+          <div style={{fontSize:11,letterSpacing:3,color:"#92400E",textTransform:"uppercase"}}>Progress Al-Qur'an</div>
+          <div style={{fontSize:32,fontWeight:800,color:"#1C0A00"}}>{pct}%</div>
+          <div style={{fontSize:13,color:"#78716C"}}>{halamanSelesai} / {totalTarget} setoran dinilai</div>
+        </div>
+        <div style={{fontSize:48}}>📖</div>
+      </div>
+      <PBar pct={pct} color="#92400E"/>
+      <button onClick={()=>setPage("setor-quran")} style={{...kBtn,marginTop:16}}>+ Setor Hafalan</button>
+    </div>
+    {lastNilai&&<div style={{...kCard,background:"#FEF3C7"}}>
+      <div style={{fontSize:11,letterSpacing:3,color:"#92400E",textTransform:"uppercase",marginBottom:8}}>Nilai Terakhir</div>
+      <div style={{display:"flex",alignItems:"center",gap:16}}>
+        <div style={{fontSize:40}}>{lastNilai.emoji}</div>
+        <div>
+          <div style={{fontSize:22,fontWeight:800,color:lastNilai.color}}>{lastNilai.label}</div>
+          <div style={{fontSize:16,color:"#92400E"}}>{lastNilai.arab}</div>
+          <div style={{fontSize:12,color:"#78716C"}}>{lastQN.surah||""}  {lastQN.ayatDari?`Ayat ${lastQN.ayatDari}–${lastQN.ayatSampai}`:""} · Skor {lastQN.skor}/100</div>
+        </div>
+      </div>
+      {lastQN.catatan&&<div style={{marginTop:12,background:"#fff8e1",borderRadius:10,padding:12,borderLeft:"3px solid #F5C542"}}>
+        <div style={{fontSize:11,color:"#92400E",letterSpacing:2}}>CATATAN DARI QUEEN ANNAAA</div>
+        <div style={{fontSize:14,color:"#1C0A00",marginTop:4}}>{lastQN.catatan}</div>
+      </div>}
+    </div>}
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:16}}>
+      <div style={{...kCard,padding:16,textAlign:"center"}}><div style={{fontSize:32}}>🔥</div><div style={{fontSize:28,fontWeight:800,color:"#92400E"}}>{streak}</div><div style={{fontSize:12,color:"#78716C"}}>Hari Streak</div></div>
+      <div style={{...kCard,padding:16,textAlign:"center"}}><div style={{fontSize:32}}>🏅</div><div style={{fontSize:28,fontWeight:800,color:"#92400E"}}>{quranNilai.length}</div><div style={{fontSize:12,color:"#78716C"}}>Total Setoran</div></div>
+    </div>
+    <div style={{...kCard,background:"#F0FDF4"}}>
+      <div style={{fontSize:11,letterSpacing:3,color:"#166534",textTransform:"uppercase",marginBottom:8}}>Tugasmu: Penyimak Matan</div>
+      <div style={{color:"#166534",fontSize:14,marginBottom:4}}>Queen Annaaa menunggu penilaianmu</div>
+      <div style={{fontSize:22,fontWeight:800,color:"#166534"}}>{matanPending} bait menunggu</div>
+      {matanPending>0&&<button onClick={()=>setPage("nilai-matan")} style={{...kBtn,background:"#166534",marginTop:12}}>✍️ Nilai Sekarang</button>}
+    </div>
+  </div>;
+}
+
+function DashQueen({baitSelesai,totalBait,matanNilai,quranNilai,quranPending,matanPending,streak,setPage}){
+  const lastMN=matanNilai.length?matanNilai[matanNilai.length-1]:null;
+  return <div>
+    <div style={{marginBottom:28}}>
+      <div style={{color:"#7E22CE",fontSize:11,letterSpacing:4}}>Assalamu'alaikum 🌸</div>
+      <div style={{fontSize:26,fontWeight:800,color:"#3B0764",lineHeight:1.2,marginTop:4}}>Queen Annaaa 👸 {randomStiker(2)}</div>
+      <div style={{color:"#A855F7",fontSize:14,marginTop:6}}>Semangat hafalan hari ini! 💜✨</div>
+    </div>
+    <div style={qCard}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:16}}>
+        <div>
+          <div style={{fontSize:11,letterSpacing:3,color:"#7E22CE",textTransform:"uppercase"}}>Progress Matan Urjuzah</div>
+          <div style={{fontSize:32,fontWeight:800,color:"#3B0764"}}>{baitSelesai}/{totalBait}</div>
+          <div style={{fontSize:13,color:"#A855F7"}}>bait sudah lancar ✨</div>
+        </div>
+        <div style={{fontSize:48}}>📚</div>
+      </div>
+      <PBar pct={Math.round((baitSelesai/totalBait)*100)} color="#7E22CE"/>
+      <button onClick={()=>setPage("setor-matan")} style={{...qBtn,marginTop:16,display:"block",width:"100%",textAlign:"center"}}>🌸 Setor Hafalan Matan</button>
+    </div>
+    {lastMN&&<div style={{...qCard,background:"#FDF4FF"}}>
+      <div style={{fontSize:11,letterSpacing:3,color:"#7E22CE",textTransform:"uppercase",marginBottom:8}}>Nilai Terakhir 🎀</div>
+      <div style={{display:"flex",alignItems:"center",gap:16}}>
+        <div style={{fontSize:40}}>{lastMN.status==="lancar"?"🏆":"🔄"}</div>
+        <div>
+          <div style={{fontSize:22,fontWeight:800,color:"#7E22CE"}}>{lastMN.status==="lancar"?"Lancar! 🌸":"Perlu Muraja'ah 💪"}</div>
+          <div style={{fontSize:13,color:"#A855F7"}}>Bait #{lastMN.baitId}</div>
+        </div>
+      </div>
+      {lastMN.catatan&&<div style={{marginTop:12,background:"#F5D0FE",borderRadius:10,padding:12,borderLeft:"3px solid #C026D3"}}>
+        <div style={{fontSize:11,color:"#7E22CE",letterSpacing:2}}>💌 CATATAN DARI KING BUMII</div>
+        <div style={{fontSize:14,color:"#3B0764",marginTop:4}}>{lastMN.catatan}</div>
+      </div>}
+      <div style={{marginTop:10,fontSize:20}}>{randomStiker(4)}</div>
+    </div>}
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:16}}>
+      <div style={{...qCard,padding:16,textAlign:"center"}}><div style={{fontSize:32}}>🔥</div><div style={{fontSize:28,fontWeight:800,color:"#7E22CE"}}>{streak}</div><div style={{fontSize:12,color:"#A855F7"}}>Hari Streak 💜</div></div>
+      <div style={{...qCard,padding:16,textAlign:"center"}}><div style={{fontSize:32}}>🌸</div><div style={{fontSize:28,fontWeight:800,color:"#7E22CE"}}>{matanNilai.length}</div><div style={{fontSize:12,color:"#A855F7"}}>Total Setoran</div></div>
+    </div>
+    <div style={{...qCard,background:"#ECFDF5"}}>
+      <div style={{fontSize:11,letterSpacing:3,color:"#166534",textTransform:"uppercase",marginBottom:8}}>🎧 Tugas Penyimak Qur'an</div>
+      <div style={{color:"#166534",fontSize:14,marginBottom:4}}>King Bumii menunggu penilaianmu</div>
+      <div style={{fontSize:22,fontWeight:800,color:"#166534"}}>{quranPending} setoran menunggu</div>
+      {quranPending>0&&<button onClick={()=>setPage("nilai-quran")} style={{...qBtn,background:"#166534",marginTop:12,display:"block",width:"100%",textAlign:"center"}}>✍️ Nilai Sekarang</button>}
+    </div>
+  </div>;
+}
+
+// ── SETOR QUR'AN ──────────────────────────────────────────
+function SetorQuran({user,quranStor,setQuranStor,showToast,setPage}){
+  const [juz,setJuz]=useState("1");
+  const [surah,setSurah]=useState("Al-Baqarah");
+  const [surahCustom,setSurahCustom]=useState("");
+  const [ayatDari,setAyatDari]=useState("");
+  const [ayatSampai,setAyatSampai]=useState("");
+  const [jumlahHal,setJumlahHal]=useState("1");
+  const [catatan,setCatatan]=useState("");
+  const surahFinal=surah==="__custom__"?surahCustom:surah;
+
+  function submit(){
+    if(!surahFinal)return showToast("Pilih atau tulis nama surat!","error");
+    if(!ayatDari||!ayatSampai)return showToast("Isi range ayat!","error");
+    const data={id:Date.now(),juz:parseInt(juz),surah:surahFinal,ayatDari:parseInt(ayatDari),ayatSampai:parseInt(ayatSampai),jumlahHal:parseInt(jumlahHal),catatan,tanggal:new Date().toISOString(),setorBy:user.id};
+    setQuranStor(prev=>[...prev,data]);
+    showToast("Setoran Al-Qur'an berhasil dicatat! 📖");
+    setAyatDari("");setAyatSampai("");setCatatan("");setJumlahHal("1");
+    setTimeout(()=>setPage("dashboard"),1500);
+  }
+  return <div>
+    <PageHdr title="Setor Hafalan Al-Qur'an" sub="Isi detail setoran harian" emoji="📖" isKing={true} onBack={()=>setPage("dashboard")}/>
+    <div style={kCard}>
+      <Lbl>Juz</Lbl>
+      <select value={juz} onChange={e=>setJuz(e.target.value)} style={kInput}>{[1,2,3,4,5].map(j=><option key={j} value={j}>Juz {j}</option>)}</select>
+      <Lbl>Nama Surat</Lbl>
+      <select value={surah} onChange={e=>setSurah(e.target.value)} style={kInput}>{SUWAR_LIST.map(s=><option key={s} value={s}>{s}</option>)}<option value="__custom__">Lainnya (ketik sendiri)</option></select>
+      {surah==="__custom__"&&<input value={surahCustom} onChange={e=>setSurahCustom(e.target.value)} placeholder="Tulis nama surat..." style={{...kInput,marginTop:8}}/>}
+      <Lbl>Ayat</Lbl>
+      <div style={{display:"grid",gridTemplateColumns:"1fr auto 1fr",gap:8,alignItems:"center"}}>
+        <input type="number" value={ayatDari} onChange={e=>setAyatDari(e.target.value)} placeholder="Dari ayat" style={kInput}/>
+        <span style={{color:"#92400E",fontWeight:700,textAlign:"center"}}>—</span>
+        <input type="number" value={ayatSampai} onChange={e=>setAyatSampai(e.target.value)} placeholder="Sampai ayat" style={kInput}/>
+      </div>
+      <Lbl>Jumlah Halaman</Lbl>
+      <div style={{display:"flex",gap:8}}>
+        {["1","2","3","4","5"].map(n=><button key={n} onClick={()=>setJumlahHal(n)} style={{flex:1,padding:"10px 4px",borderRadius:10,border:"none",cursor:"pointer",background:jumlahHal===n?"#92400E":"#FEF3C7",color:jumlahHal===n?"#fff":"#92400E",fontWeight:700,fontSize:16}}>{n}</button>)}
+      </div>
+      <Lbl>Catatan untuk Penyimak (opsional)</Lbl>
+      <textarea value={catatan} onChange={e=>setCatatan(e.target.value)} placeholder="Misal: Bagian yang terasa berat..." rows={3} style={{...kInput,resize:"vertical"}}/>
+      <button onClick={submit} style={{...kBtn,width:"100%",padding:14,fontSize:15,marginTop:12}}>📤 Kirim Setoran</button>
+    </div>
+    <div style={{...kCard,background:"#FEF3C7"}}>
+      <div style={{fontSize:12,color:"#92400E",letterSpacing:2,marginBottom:8}}>RIWAYAT SETORAN TERAKHIR</div>
+      {quranStor.slice(-4).reverse().map(s=><div key={s.id} style={{padding:"10px 0",borderBottom:"1px solid #F5C54240"}}>
+        <div style={{display:"flex",justifyContent:"space-between"}}>
+          <span style={{fontWeight:700,color:"#92400E"}}>{s.surah||`Juz ${s.juz}`}</span>
+          <span style={{fontSize:12,color:"#78716C"}}>{new Date(s.tanggal).toLocaleDateString("id-ID")}</span>
+        </div>
+        <div style={{fontSize:13,color:"#78716C",marginTop:2}}>Ayat {s.ayatDari}–{s.ayatSampai} · {s.jumlahHal} halaman</div>
+        {s.catatan&&<div style={{fontSize:12,color:"#A8714C",marginTop:2}}>📝 {s.catatan}</div>}
+      </div>)}
+      {!quranStor.length&&<div style={{color:"#78716C",fontSize:13}}>Belum ada setoran</div>}
+    </div>
+  </div>;
+}
+
+// ── NILAI QUR'AN ──────────────────────────────────────────
+function NilaiQuran({user,quranStor,quranNilai,setQuranNilai,showToast,setPage}){
+  const pending=quranStor.filter(s=>!quranNilai.find(n=>n.setorId===s.id));
+  const [sel,setSel]=useState(pending[0]||null);
+  const [kelancaran,setKelancaran]=useState(4);
+  const [tajwid,setTajwid]=useState(4);
+  const [makhraj,setMakhraj]=useState(4);
+  const [catatan,setCatatan]=useState("");
+
+  function submit(){
+    if(!sel)return;
+    const skor=Math.round(((kelancaran+tajwid+makhraj)/12)*100);
+    const nilai={id:Date.now(),setorId:sel.id,surah:sel.surah,ayatDari:sel.ayatDari,ayatSampai:sel.ayatSampai,juz:sel.juz,skor,kelancaran,tajwid,makhraj,catatan,tanggal:new Date().toISOString(),nilaiBy:user.id};
+    setQuranNilai(prev=>[...prev,nilai]);
+    showToast(`Penilaian tersimpan! Skor: ${skor} — ${getNilai(skor).label} 🌸`);
+    const next=pending.filter(p=>p.id!==sel.id)[0];
+    setSel(next||null);setCatatan("");setKelancaran(4);setTajwid(4);setMakhraj(4);
+  }
+  if(!pending.length)return <div><PageHdr title="Nilai Hafalan Qur'an" sub="Semua setoran sudah dinilai" emoji="✅" isKing={false} onBack={()=>setPage("dashboard")}/><div style={qCard}><div style={{textAlign:"center",padding:32}}><div style={{fontSize:48}}>🌸</div><div style={{fontSize:18,fontWeight:700,color:"#7E22CE",marginTop:12}}>Tidak ada setoran yang menunggu</div><div style={{color:"#A855F7",marginTop:8}}>King Bumii belum menyetorkan hafalan baru</div></div></div></div>;
+  const skor=Math.round(((kelancaran+tajwid+makhraj)/12)*100);
+  const nPrev=getNilai(skor);
+  return <div>
+    <PageHdr title="Nilai Hafalan Qur'an" sub={`${pending.length} setoran menunggu penilaian`} emoji="🎧" isKing={false} onBack={()=>setPage("dashboard")}/>
+    {pending.length>1&&<div style={{display:"flex",gap:8,marginBottom:16,flexWrap:"wrap"}}>
+      {pending.map(p=><button key={p.id} onClick={()=>setSel(p)} style={{padding:"6px 14px",borderRadius:20,border:"none",background:sel?.id===p.id?"#7E22CE":"#F3E8FF",color:sel?.id===p.id?"#fff":"#7E22CE",cursor:"pointer",fontSize:13}}>{p.surah||`Hal.${p.halaman}`} {p.ayatDari?`(${p.ayatDari}–${p.ayatSampai})`:""}</button>)}
+    </div>}
+    {sel&&<div style={qCard}>
+      <div style={{background:"#F5D0FE",borderRadius:12,padding:16,marginBottom:20}}>
+        <div style={{fontSize:11,letterSpacing:3,color:"#7E22CE"}}>SETORAN KING BUMII</div>
+        <div style={{fontSize:20,fontWeight:800,color:"#3B0764",marginTop:4}}>{sel.surah||`Juz ${sel.juz}`}</div>
+        {sel.ayatDari&&<div style={{fontSize:15,color:"#7E22CE",marginTop:2}}>Ayat {sel.ayatDari}–{sel.ayatSampai} · {sel.jumlahHal} halaman</div>}
+        <div style={{fontSize:12,color:"#A855F7",marginTop:4}}>{new Date(sel.tanggal).toLocaleDateString("id-ID",{weekday:"long",day:"numeric",month:"long"})}</div>
+        {sel.catatan&&<div style={{marginTop:8,fontSize:13,color:"#7E22CE"}}>📝 {sel.catatan}</div>}
+      </div>
+      <Lbl q>Kelancaran</Lbl>
+      <RatingSlider val={kelancaran} setVal={setKelancaran} labels={["Banyak Salah","Kurang Lancar","Cukup Lancar","Sangat Lancar"]}/>
+      <Lbl q>Tajwid</Lbl>
+      <RatingSlider val={tajwid} setVal={setTajwid} labels={["Banyak Salah","Perlu Koreksi","Cukup Baik","Sangat Baik"]}/>
+      <Lbl q>Makhraj</Lbl>
+      <RatingSlider val={makhraj} setVal={setMakhraj} labels={["Banyak Salah","Perlu Koreksi","Cukup Baik","Sangat Baik"]}/>
+      <div style={{background:"#F5D0FE",borderRadius:12,padding:16,margin:"16px 0",textAlign:"center"}}>
+        <div style={{fontSize:11,letterSpacing:3,color:"#7E22CE"}}>PREDIKSI NILAI</div>
+        <div style={{fontSize:28,fontWeight:800,color:nPrev.color,marginTop:4}}>{nPrev.emoji} {nPrev.label}</div>
+        <div style={{fontSize:14,color:"#7E22CE"}}>{nPrev.arab} · {skor}/100</div>
+      </div>
+      <Lbl q>Catatan untuk King Bumii</Lbl>
+      <textarea value={catatan} onChange={e=>setCatatan(e.target.value)} placeholder="Tuliskan catatan, semangat, atau koreksi..." rows={3} style={{...qInput,resize:"vertical"}}/>
+      <button onClick={submit} style={{...qBtn,width:"100%",padding:14,fontSize:15,marginTop:8,display:"block",textAlign:"center"}}>💌 Kirim Penilaian</button>
+    </div>}
+  </div>;
+}
+
+// ── SETOR MATAN ───────────────────────────────────────────
+function SetorMatan({user,matanStor,setMatanStor,matanList,showToast,setPage}){
+  const [selBab,setSelBab]=useState("Semua");
+  const [checked,setChecked]=useState({});
+  const [catatan,setCatatan]=useState("");
+  const babs=["Semua",...new Set(matanList.map(b=>b.bab))];
+  const filtered=selBab==="Semua"?matanList:matanList.filter(b=>b.bab===selBab);
+  const checkedIds=Object.keys(checked).filter(k=>checked[k]).map(Number);
+  const allChecked=filtered.length>0&&filtered.every(b=>checked[b.id]);
+
+  function toggleAll(){const next={...checked};filtered.forEach(b=>{next[b.id]=!allChecked;});setChecked(next);}
+  function toggle(id){setChecked(prev=>({...prev,[id]:!prev[id]}));}
+  function setor(){
+    if(!checkedIds.length)return showToast("Pilih minimal 1 bait dulu! 🌸","error");
+    const baitDipilih=matanList.filter(b=>checkedIds.includes(b.id));
+    const newStor=baitDipilih.map((bait,i)=>({id:Date.now()+i,baitId:bait.id,arab:bait.arab,latin:bait.latin,arti:bait.arti,bab:bait.bab,catatan,tanggal:new Date().toISOString(),setorBy:user.id}));
+    setMatanStor(prev=>[...prev,...newStor]);
+    showToast(`${checkedIds.length} bait berhasil disetorkan! 🌸✨`);
+    setChecked({});setCatatan("");
+    setTimeout(()=>setPage("dashboard"),1500);
+  }
+  return <div>
+    <PageHdr title="Setor Hafalan Matan" sub="Matan Al-Muqaddimah Al-Jazariyyah (Urjuzah)" emoji="📚" isKing={false} onBack={()=>setPage("dashboard")}/>
+    <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:12}}>
+      {babs.map(b=><button key={b} onClick={()=>setSelBab(b)} style={{padding:"6px 14px",borderRadius:20,border:"none",fontSize:12,background:selBab===b?"#7E22CE":"#F3E8FF",color:selBab===b?"#fff":"#7E22CE",cursor:"pointer"}}>{b}</button>)}
+    </div>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+      <button onClick={toggleAll} style={{padding:"6px 16px",borderRadius:20,border:"1px solid #7E22CE",background:allChecked?"#7E22CE":"transparent",color:allChecked?"#fff":"#7E22CE",cursor:"pointer",fontSize:12}}>{allChecked?"✗ Batal Semua":"✓ Pilih Semua"}</button>
+      <span style={{fontSize:13,color:"#A855F7",fontWeight:700}}>{checkedIds.length>0?`${checkedIds.length} bait dipilih 🌸`:"Belum ada yang dipilih"}</span>
+    </div>
+    <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:checkedIds.length>0?180:16}}>
+      {filtered.map(bait=>{
+        const sudah=matanStor.filter(s=>s.baitId===bait.id).length;
+        const isCk=!!checked[bait.id];
+        return <div key={bait.id} onClick={()=>toggle(bait.id)} style={{...qCard,padding:14,cursor:"pointer",border:isCk?"2px solid #7E22CE":"2px solid transparent",background:isCk?"#F5D0FE":"#fff",marginBottom:0}}>
+          <div style={{display:"flex",alignItems:"flex-start",gap:12}}>
+            <div style={{width:22,height:22,borderRadius:6,border:"2px solid #7E22CE",background:isCk?"#7E22CE":"transparent",flexShrink:0,marginTop:4,display:"flex",alignItems:"center",justifyContent:"center"}}>
+              {isCk&&<span style={{color:"#fff",fontSize:13,lineHeight:1}}>✓</span>}
+            </div>
+            <div style={{flex:1}}>
+              <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap",marginBottom:4}}>
+                <span style={{background:"#7E22CE",color:"#fff",borderRadius:20,padding:"2px 10px",fontSize:11}}>#{bait.id}</span>
+                <span style={{fontSize:11,color:"#A855F7"}}>{bait.bab}</span>
+                {sudah>0&&<span style={{fontSize:11,color:"#059669",background:"#DCFCE7",padding:"1px 8px",borderRadius:20}}>✓ {sudah}× disetorkan</span>}
+              </div>
+              <div style={{fontSize:17,color:"#1C0A00",lineHeight:1.9,textAlign:"right",fontFamily:"serif",direction:"rtl"}}>{bait.arab}</div>
+              <div style={{fontSize:12,color:"#7E22CE",fontStyle:"italic",marginTop:3}}>{bait.latin}</div>
+              <div style={{fontSize:12,color:"#78716C",marginTop:2}}>{bait.arti}</div>
+            </div>
+          </div>
+        </div>;
+      })}
+    </div>
+    {checkedIds.length>0&&<div style={{position:"fixed",bottom:0,left:0,right:0,padding:16,background:"#fff",borderTop:"2px solid #E9D5FF",zIndex:200}}>
+      <div style={{maxWidth:800,margin:"0 auto"}}>
+        <textarea value={catatan} onChange={e=>setCatatan(e.target.value)} placeholder="💬 Catatan untuk King Bumii (opsional)..." rows={2} style={{...qInput,resize:"none",marginBottom:8,width:"100%"}}/>
+        <button onClick={setor} style={{...qBtn,width:"100%",padding:14,fontSize:15,display:"block",textAlign:"center"}}>🌸 Setorkan {checkedIds.length} Bait Sekarang</button>
+      </div>
+    </div>}
+  </div>;
+}
+
+// ── NILAI MATAN ───────────────────────────────────────────
+function NilaiMatan({user,matanStor,matanNilai,setMatanNilai,matanList,showToast,setPage}){
+  const pending=matanStor.filter(s=>!matanNilai.find(n=>n.setorId===s.id));
+  const [sel,setSel]=useState(pending[0]||null);
+  const [status,setStatus]=useState("lancar");
+  const [catatan,setCatatan]=useState("");
+
+  function submit(){
+    if(!sel)return;
+    const nilai={id:Date.now(),setorId:sel.id,baitId:sel.baitId,bab:sel.bab,status,catatan,tanggal:new Date().toISOString(),nilaiBy:user.id};
+    setMatanNilai(prev=>[...prev,nilai]);
+    showToast(`Penilaian disimpan! Bait #${sel.baitId} — ${status==="lancar"?"Lancar ✅":"Perlu Ulang 🔄"}`);
+    const next=pending.filter(p=>p.id!==sel.id)[0];
+    setSel(next||null);setCatatan("");setStatus("lancar");
+  }
+  if(!pending.length)return <div><PageHdr title="Nilai Matan Urjuzah" sub="Semua setoran sudah dinilai" emoji="✅" isKing={true} onBack={()=>setPage("dashboard")}/><div style={kCard}><div style={{textAlign:"center",padding:32}}><div style={{fontSize:48}}>📿</div><div style={{fontSize:18,fontWeight:700,color:"#92400E",marginTop:12}}>Tidak ada setoran yang menunggu</div><div style={{color:"#78716C",marginTop:8}}>Queen Annaaa belum menyetorkan bait baru</div></div></div></div>;
+  return <div>
+    <PageHdr title="Nilai Matan Urjuzah" sub={`${pending.length} bait menunggu penilaian`} emoji="✍️" isKing={true} onBack={()=>setPage("dashboard")}/>
+    {pending.length>1&&<div style={{display:"flex",gap:8,marginBottom:16,flexWrap:"wrap"}}>{pending.map(p=><button key={p.id} onClick={()=>setSel(p)} style={{padding:"6px 14px",borderRadius:20,border:"none",background:sel?.id===p.id?"#92400E":"#FEF3C7",color:sel?.id===p.id?"#fff":"#92400E",cursor:"pointer",fontSize:13}}>Bait #{p.baitId}</button>)}</div>}
+    {sel&&<div style={kCard}>
+      <div style={{background:"#FEF3C7",borderRadius:12,padding:16,marginBottom:20}}>
+        <div style={{fontSize:11,letterSpacing:3,color:"#92400E"}}>SETORAN QUEEN ANNAAA</div>
+        <div style={{fontSize:11,color:"#78716C",marginTop:2}}>{sel.bab}</div>
+        <div style={{fontSize:22,color:"#1C0A00",textAlign:"right",lineHeight:2,marginTop:8,fontFamily:"serif",direction:"rtl"}}>{sel.arab}</div>
+        <div style={{fontSize:13,color:"#92400E",fontStyle:"italic",marginTop:4}}>{sel.latin}</div>
+        <div style={{fontSize:13,color:"#78716C",marginTop:4}}>{sel.arti}</div>
+        <div style={{fontSize:12,color:"#78716C",marginTop:8}}>{new Date(sel.tanggal).toLocaleDateString("id-ID",{weekday:"long",day:"numeric",month:"long"})}</div>
+      </div>
+      <Lbl>Status Hafalan</Lbl>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:16}}>
+        {[{val:"lancar",label:"✅ Sudah Lancar",sub:"Hafalan lancar tanpa kendala"},{val:"ulang",label:"🔄 Perlu Diulang",sub:"Masih perlu muraja'ah"}].map(opt=><button key={opt.val} onClick={()=>setStatus(opt.val)} style={{padding:16,borderRadius:12,border:"none",cursor:"pointer",background:status===opt.val?(opt.val==="lancar"?"#065F46":"#7F1D1D"):"#FEF3C7",color:status===opt.val?"#fff":"#1C0A00",textAlign:"left",transition:"all 0.2s"}}>
+          <div style={{fontWeight:700,fontSize:14}}>{opt.label}</div>
+          <div style={{fontSize:11,marginTop:4,opacity:0.8}}>{opt.sub}</div>
+        </button>)}
+      </div>
+      <Lbl>Catatan untuk Queen Annaaa</Lbl>
+      <textarea value={catatan} onChange={e=>setCatatan(e.target.value)} placeholder="Tulis koreksi, pujian, atau motivasi..." rows={3} style={{...kInput,resize:"vertical"}}/>
+      <button onClick={submit} style={{...kBtn,width:"100%",padding:14,fontSize:15,marginTop:8}}>📤 Kirim Penilaian</button>
+    </div>}
+  </div>;
+}
+
+// ── RIWAYAT ───────────────────────────────────────────────
+function Riwayat({user,quranStor,setQuranStor,matanStor,setMatanStor,quranNilai,setQuranNilai,matanNilai,setMatanNilai,matanList,showToast}){
+  const isKing=user.role==="king";
+  const [tab,setTab]=useState(isKing?"qurannilai":"matannilai");
+  const [konfirmId,setKonfirmId]=useState(null);
+
+  function hapusQN(id){
+    const n=quranNilai.find(x=>x.id===id);
+    setQuranNilai(prev=>prev.filter(x=>x.id!==id));
+    if(n)setQuranStor(prev=>prev.filter(x=>x.id!==n.setorId));
+    setKonfirmId(null);showToast("Setoran berhasil dibatalkan");
+  }
+  function hapusMN(id){
+    const n=matanNilai.find(x=>x.id===id);
+    setMatanNilai(prev=>prev.filter(x=>x.id!==id));
+    if(n)setMatanStor(prev=>prev.filter(x=>x.id!==n.setorId));
+    setKonfirmId(null);showToast("Setoran berhasil dibatalkan");
+  }
+
+  return <div>
+    <PageHdr title="Riwayat & Statistik" sub="Rekap perjalanan hafalan" emoji="📊" isKing={isKing}/>
+    <div style={{display:"flex",gap:8,marginBottom:20}}>
+      {[{key:"qurannilai",label:"Qur'an"},{key:"matannilai",label:"Matan"}].map(t=><button key={t.key} onClick={()=>setTab(t.key)} style={{padding:"8px 20px",borderRadius:20,border:"none",cursor:"pointer",background:tab===t.key?(isKing?"#92400E":"#7E22CE"):(isKing?"#FEF3C7":"#F3E8FF"),color:tab===t.key?"#fff":(isKing?"#92400E":"#7E22CE"),fontWeight:600,fontSize:13}}>{t.label}</button>)}
+    </div>
+    {tab==="qurannilai"&&<div>
+      {quranNilai.length===0&&<Empty msg="Belum ada penilaian Al-Qur'an" isKing={isKing}/>}
+      {[...quranNilai].reverse().map(n=>{
+        const ni=getNilai(n.skor);const isCf=konfirmId===n.id;
+        return <div key={n.id} style={{...(isKing?kCard:qCard),marginBottom:10}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+            <div style={{flex:1}}>
+              <div style={{fontWeight:700,fontSize:15,color:"#1C0A00"}}>{n.surah||`Juz ${n.juz}`} {n.ayatDari?`· Ayat ${n.ayatDari}–${n.ayatSampai}`:n.halaman?`· Hal. ${n.halaman}`:""}</div>
+              <div style={{fontSize:12,color:"#78716C"}}>{fmtDate(n.tanggal)}</div>
+            </div>
+            <div style={{textAlign:"right"}}>
+              <div style={{fontSize:16,fontWeight:800,color:ni.color}}>{ni.emoji} {ni.label}</div>
+              <div style={{fontSize:12,color:"#78716C"}}>Skor {n.skor}/100</div>
+            </div>
+          </div>
+          {n.catatan&&<div style={{marginTop:10,background:isKing?"#FEF3C7":"#F5D0FE",borderRadius:8,padding:10,fontSize:13,color:"#1C0A00"}}>💬 {n.catatan}</div>}
+          <div style={{display:"flex",gap:12,marginTop:8,fontSize:12,color:"#78716C"}}><span>Kelancaran: {n.kelancaran}/4</span><span>Tajwid: {n.tajwid}/4</span><span>Makhraj: {n.makhraj}/4</span></div>
+          {!isCf?<button onClick={()=>setKonfirmId(n.id)} style={{marginTop:10,padding:"5px 14px",borderRadius:20,border:"1px solid #DC2626",background:"transparent",color:"#DC2626",cursor:"pointer",fontSize:12}}>🗑 Batalkan setoran ini</button>
+          :<div style={{marginTop:10,background:"#FEF2F2",borderRadius:10,padding:12}}>
+            <div style={{fontSize:13,color:"#DC2626",marginBottom:8}}>Yakin ingin membatalkan? Nilai akan dihapus dan setoran kembali ke pending.</div>
+            <div style={{display:"flex",gap:8}}>
+              <button onClick={()=>hapusQN(n.id)} style={{padding:"6px 16px",borderRadius:20,border:"none",background:"#DC2626",color:"#fff",cursor:"pointer",fontSize:13,fontWeight:700}}>Ya, batalkan</button>
+              <button onClick={()=>setKonfirmId(null)} style={{padding:"6px 16px",borderRadius:20,border:"1px solid #78716C",background:"transparent",color:"#78716C",cursor:"pointer",fontSize:13}}>Tidak</button>
+            </div>
+          </div>}
+        </div>;
+      })}
+    </div>}
+    {tab==="matannilai"&&<div>
+      {matanNilai.length===0&&<Empty msg="Belum ada penilaian matan" isKing={isKing}/>}
+      {[...matanNilai].reverse().map(n=>{
+        const isCf=konfirmId===n.id;
+        return <div key={n.id} style={{...(isKing?kCard:qCard),marginBottom:10}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+            <div><div style={{fontWeight:700,fontSize:15,color:"#1C0A00"}}>Bait #{n.baitId} · {n.bab}</div><div style={{fontSize:12,color:"#78716C"}}>{fmtDate(n.tanggal)}</div></div>
+            <div style={{textAlign:"right"}}><div style={{fontSize:18,fontWeight:800,color:n.status==="lancar"?"#059669":"#DC2626"}}>{n.status==="lancar"?"✅ Lancar":"🔄 Perlu Ulang"}</div></div>
+          </div>
+          {n.catatan&&<div style={{marginTop:10,background:isKing?"#FEF3C7":"#F5D0FE",borderRadius:8,padding:10,fontSize:13,color:"#1C0A00"}}>💬 {n.catatan}</div>}
+          {!isKing&&<div style={{marginTop:8,fontSize:18}}>{randomStiker(3)}</div>}
+          {!isCf?<button onClick={()=>setKonfirmId(n.id)} style={{marginTop:10,padding:"5px 14px",borderRadius:20,border:"1px solid #DC2626",background:"transparent",color:"#DC2626",cursor:"pointer",fontSize:12}}>🗑 Batalkan setoran ini</button>
+          :<div style={{marginTop:10,background:"#FEF2F2",borderRadius:10,padding:12}}>
+            <div style={{fontSize:13,color:"#DC2626",marginBottom:8}}>Yakin ingin membatalkan? Nilai akan dihapus dan setoran kembali ke pending.</div>
+            <div style={{display:"flex",gap:8}}>
+              <button onClick={()=>hapusMN(n.id)} style={{padding:"6px 16px",borderRadius:20,border:"none",background:"#DC2626",color:"#fff",cursor:"pointer",fontSize:13,fontWeight:700}}>Ya, batalkan</button>
+              <button onClick={()=>setKonfirmId(null)} style={{padding:"6px 16px",borderRadius:20,border:"1px solid #78716C",background:"transparent",color:"#78716C",cursor:"pointer",fontSize:13}}>Tidak</button>
+            </div>
+          </div>}
+        </div>;
+      })}
+    </div>}
+  </div>;
+}
+
+// ── REKOMENDASI AI ────────────────────────────────────────
+function Rekomendasi({user,quranNilai,matanNilai,quranStor,matanStor,matanList}){
+  const isKing=user.role==="king";
+  const [loading,setLoading]=useState(false);
+  const [result,setResult]=useState(null);
+
+  async function getRekomendasi(){
+    setLoading(true);setResult(null);
+    try{
+      const ctx=isKing
+        ?`Santri bernama King Bumii sedang menghafal Al-Qur'an target 10 Juz (Juz 1-5 fokus Al-Baqarah) sebelum Januari 2027. Data penilaian hafalan terakhir: ${JSON.stringify(quranNilai.slice(-5))}. Total setoran: ${quranStor.length}, total dinilai: ${quranNilai.length}. Berikan rekomendasi singkat: apakah perlu pengulangan atau lanjut, dan tips spesifik untuk hafalan Al-Qur'an. Gaya bicara semangat dan to the point. Gunakan istilah seperti muraja'ah, ziyadah, dll.`
+        :`Santriwati bernama Queen Annaaa sedang menghafal Matan Al-Muqaddimah Al-Jazariyyah (Urjuzah) tentang ilmu tajwid. Data penilaian terakhir: ${JSON.stringify(matanNilai.slice(-5))}. Total setoran: ${matanStor.length}, bait lancar: ${matanNilai.filter(n=>n.status==="lancar").length} dari ${matanList.length}. Berikan rekomendasi singkat yang manis, semangat, dan spesifik tentang matan urjuzah. Gunakan emoji dan gaya yang ceria.`;
+      const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:ctx}]})});
+      const data=await res.json();
+      setResult(data.content?.[0]?.text||"Tidak ada rekomendasi saat ini.");
+    }catch(e){setResult("Gagal mengambil rekomendasi. Pastikan koneksi internet stabil.");}
+    setLoading(false);
+  }
+
+  const rataQ=quranNilai.length?Math.round(quranNilai.reduce((a,n)=>a+n.skor,0)/quranNilai.length):0;
+
+  return <div>
+    <PageHdr title="Rekomendasi AI" sub="Analisis progres & saran lanjutan" emoji="🤖" isKing={isKing}/>
+    <div style={isKing?kCard:qCard}>
+      <div style={{fontSize:13,color:"#78716C",marginBottom:16,lineHeight:1.6}}>{isKing?"Dapatkan analisis progres hafalan Al-Qur'anmu dan rekomendasi apakah perlu muraja'ah atau lanjut ziyadah.":"Dapatkan rekomendasi manis tentang perjalanan hafalan Matan Urjuzahmu! 🌸"}</div>
+      <button onClick={getRekomendasi} disabled={loading} style={{...(isKing?kBtn:qBtn),width:"100%",padding:14,fontSize:15,display:"block",textAlign:"center",opacity:loading?0.7:1}}>
+        {loading?"Menganalisis...":(isKing?"🧠 Minta Rekomendasi":"✨ Minta Rekomendasi 🌸")}
+      </button>
+    </div>
+    {loading&&<div style={{textAlign:"center",padding:32,color:isKing?"#92400E":"#7E22CE"}}><div style={{fontSize:36,marginBottom:12}}>⏳</div><div>Sedang menganalisis...</div></div>}
+    {result&&<div style={{...(isKing?kCard:qCard),background:isKing?"#FEF3C7":"#FDF4FF",whiteSpace:"pre-wrap",lineHeight:1.8,fontSize:14,color:"#1C0A00"}}>
+      <div style={{fontSize:11,letterSpacing:3,color:isKing?"#92400E":"#7E22CE",marginBottom:12}}>REKOMENDASI AI {!isKing&&"🌸"}</div>
+      {result}
+    </div>}
+    <div style={isKing?kCard:qCard}>
+      <div style={{fontSize:11,letterSpacing:3,color:isKing?"#92400E":"#7E22CE",marginBottom:12}}>STATISTIK RINGKAS</div>
+      {isKing
+        ?<><StatRow label="Total Setoran Qur'an" val={quranStor.length}/><StatRow label="Sudah Dinilai" val={quranNilai.length}/><StatRow label="Rata-rata Skor" val={quranNilai.length?`${rataQ}/100`:"-"}/><StatRow label="Nilai Terbaik" val={quranNilai.length?getNilai(Math.max(...quranNilai.map(n=>n.skor))).label:"-"}/></>
+        :<><StatRow label="Total Setoran Matan" val={matanStor.length}/><StatRow label="Bait Lancar" val={matanNilai.filter(n=>n.status==="lancar").length}/><StatRow label="Perlu Diulang" val={matanNilai.filter(n=>n.status==="ulang").length}/><StatRow label="Progress" val={`${Math.round((matanNilai.filter(n=>n.status==="lancar").length/matanList.length)*100)}%`}/></>
+      }
+    </div>
+  </div>;
+}
+
+// ── MAIN APP ──────────────────────────────────────────────
+function App(){
+  const [user,setUser]=useState(null);
+  const [page,setPage]=useState("dashboard");
+  const [toast,setToast]=useState(null);
+  const [quranStor,setQuranStor]=useState(()=>gs("quran_stor",[]));
+  const [matanStor,setMatanStor]=useState(()=>gs("matan_stor",[]));
+  const [quranNilai,setQuranNilai]=useState(()=>gs("quran_nilai",[]));
+  const [matanNilai,setMatanNilai]=useState(()=>gs("matan_nilai",[]));
+  const [matanList]=useState(()=>gs("matan_list",URJUZAH_BAIT));
+
+  useEffect(()=>{ss("quran_stor",quranStor);},[quranStor]);
+  useEffect(()=>{ss("matan_stor",matanStor);},[matanStor]);
+  useEffect(()=>{ss("quran_nilai",quranNilai);},[quranNilai]);
+  useEffect(()=>{ss("matan_nilai",matanNilai);},[matanNilai]);
+
+  function showToast(msg,type="success"){setToast({msg,type});setTimeout(()=>setToast(null),3000);}
+
+  if(!user)return <LoginPage onLogin={setUser}/>;
+  const isKing=user.role==="king";
+
+  const shared={user,quranStor,setQuranStor,matanStor,setMatanStor,quranNilai,setQuranNilai,matanNilai,setMatanNilai,matanList,showToast,setPage};
+
+  return <div style={{minHeight:"100vh",background:isKing?"#F5EFE6":"#FDF0F8",fontFamily:"Georgia,serif"}}>
+    <TopBar user={user} page={page} setPage={setPage} onLogout={()=>{setUser(null);setPage("dashboard");}}/>
+    <Toast toast={toast}/>
+    <div style={{maxWidth:800,margin:"0 auto",padding:"24px 16px"}}>
+      {page==="dashboard"&&<Dashboard {...shared}/>}
+      {page==="setor-quran"&&<SetorQuran {...shared}/>}
+      {page==="nilai-quran"&&<NilaiQuran {...shared}/>}
+      {page==="setor-matan"&&<SetorMatan {...shared}/>}
+      {page==="nilai-matan"&&<NilaiMatan {...shared}/>}
+      {page==="riwayat"&&<Riwayat {...shared}/>}
+      {page==="rekomendasi"&&<Rekomendasi {...shared}/>}
+    </div>
+  </div>;
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
